@@ -76,6 +76,11 @@ function displayPost(post) {
   newPost.innerHTML = postHTML;
   document.getElementById('postsContainer').appendChild(newPost);
 
+  // Load existing reactions from the post element (if they exist)
+  const existingReactions = newPost.dataset.reactions ? JSON.parse(newPost.dataset.reactions) : {};
+  // Update the post's reactions with the loaded data
+  post.reactions = existingReactions;
+
   // Add reaction buttons to the post
   addReactionButtons(newPost, post.reactions);
   // Store reactions on the post element
@@ -158,6 +163,14 @@ function toggleReaction(element, emoji) {
   element.dataset.reactions = JSON.stringify(reactions); // Update reactions data
   // Display the reaction
   displayReaction(element, emoji); // Call displayReaction here
+
+  // Update the post object in local storage with the new reactions
+  const posts = getPosts();
+  const postIndex = Array.from(document.getElementById('postsContainer').children).indexOf(element);
+  if (postIndex !== -1) {
+    posts[postIndex].reactions = reactions;
+    localStorage.setItem('posts', JSON.stringify(posts));
+  }
 }
 
 // Function to add a comment
