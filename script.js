@@ -1,4 +1,26 @@
 // Function to create a new post
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBVh0DfMKE1IKTMadyTLO_c54Y6o5BCnTY",
+  authDomain: "liebe-f332d.firebaseapp.com",
+  projectId: "liebe-f332d",
+  storageBucket: "liebe-f332d.appspot.com",
+  messagingSenderId: "199124008155",
+  appId: "1:199124008155:web:04f7f5582811693fdda0fe",
+  measurementId: "G-TE1VF9N946"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
