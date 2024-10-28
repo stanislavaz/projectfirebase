@@ -59,7 +59,8 @@ async function createPost() {
       newPost.imageUrl = imageUrl; // Add image URL to the new post
     } catch (error) {
       console.error("Error uploading image:", error);
-      return;
+      alert("Error uploading image. Please try again.");
+      return; // Exit the function if image upload fails
     }
   }
 
@@ -70,6 +71,7 @@ async function createPost() {
     loadPosts(); // Reload posts to show the new one
   } catch (error) {
     console.error("Error saving post to Firestore:", error);
+    alert("Error saving post. Please try again.");
   }
 
   // Clear form after posting
@@ -115,4 +117,9 @@ function displayPost(post) {
 window.onload = loadPosts;
 
 // Attach event listener to the Post button
-document.getElementById("postButton").addEventListener("click", createPost);
+const postButton = document.getElementById("postButton");
+if (postButton) {
+  postButton.addEventListener("click", createPost);
+} else {
+  console.error("Post button not found!");
+}
