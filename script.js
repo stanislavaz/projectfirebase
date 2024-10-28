@@ -51,12 +51,16 @@ async function createPost() {
         displayPost(newPost);
         document.getElementById('postContent').value = "";
         imageUpload.value = '';
+        // Refresh the display after saving
+        loadPosts(); // Add this line
       };
       reader.readAsDataURL(imageFile);
     } else {
       savePostToDatabase(newPost);
       displayPost(newPost);
       document.getElementById('postContent').value = "";
+      // Refresh the display after saving
+      loadPosts(); // Add this line
     }
   } else if (postContent.trim() !== "" && !username) {
     // Prompt for username if it's not set
@@ -213,9 +217,16 @@ function displayReaction(element, emoji) {
   console.log(`Reaction ${emoji} toggled on element:`, element); 
 }
 
+// Function to load posts from the database and display them
+async function loadPosts() {
+  const posts = await getPostsFromDatabase();
+  const postsContainer = document.getElementById('postsContainer');
+  // Clear existing posts before adding new ones
+  postsContainer.innerHTML = '';
+  posts.forEach(post => displayPost(post));
+}
 
 // Load posts from the database on page load
 window.onload = async function() {
-  const posts = await getPostsFromDatabase();
-  posts.forEach(post => displayPost(post));
+  await loadPosts(); // Call loadPosts to display initial posts
 };
