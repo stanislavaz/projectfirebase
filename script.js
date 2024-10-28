@@ -17,6 +17,15 @@ const firebaseConfig = {
   appId: "1:199124008155:web:04f7f5582811693fdda0fe",
   measurementId: "G-TE1VF9N946"
 };
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
+
+const storage = getStorage(app);
+
+async function uploadImage(file) {
+  const storageRef = ref(storage, `images/${file.name}`);
+  await uploadBytes(storageRef, file);
+  return await getDownloadURL(storageRef);
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
