@@ -1,16 +1,16 @@
 // Function to get the username for the current user
 async function getUserName() {
   const userID = getUserID();
-  let userData = await getUserDataFromDatabase();
-  return userData.usernames[userID] || null;
+  let usernames = await getUsernamesFromDatabase();
+  return usernames[userID] || null;
 }
 
 // Function to set the username for the current user
 async function setUserName(username) {
   const userID = getUserID();
-  let userData = await getUserDataFromDatabase();
-  userData.usernames[userID] = username;
-  await saveUserDataToDatabase(userData.usernames, userData.userIDs);
+  let usernames = await getUsernamesFromDatabase();
+  usernames[userID] = username;
+  await saveUsernamesToDatabase(usernames);
 }
 
 // Function to get a unique user ID (if not already present)
@@ -105,7 +105,7 @@ function displayPost(post) {
     `;
 
   newPost.innerHTML = postHTML;
-  document.getElementById('postsContainer').appendChild(newPost);
+  document.getElementById('postsContainer').appendChild(newPost); // Add the post to the DOM
 
   // Load existing reactions from the post element (if they exist)
   const existingReactions = newPost.dataset.reactions ? JSON.parse(newPost.dataset.reactions) : {};
