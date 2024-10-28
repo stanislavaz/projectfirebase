@@ -65,14 +65,16 @@ async function uploadImage(file) {
 }
 
 // Function to save post to Firestore
+// Function to save post to Firestore
 async function savePostToDatabase(post) {
   try {
-    const docRef = await addDoc(collection(db, "posts"), post);
-    console.log("Post written with ID: ", docRef.id);
+    const docRef = await addDoc(collection(db, "posts"), post); // No need to specify doc ID
+    console.log("Post written with ID: ", docRef.id); // Log the auto-generated ID
   } catch (e) {
     console.error("Error adding document: ", e);
   }
 }
+
 
 // Function to load posts from Firestore
 async function loadPosts() {
