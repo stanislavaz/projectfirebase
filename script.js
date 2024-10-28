@@ -9,11 +9,11 @@ function getUserID() {
 }
 
 // Function to create a new post
-function createPost() {
+async function createPost() {
   const postContent = document.getElementById('postContent').value;
   const imageUpload = document.getElementById('imageUpload');
   const imageFile = imageUpload.files[0];
-  const userID = getUserID(); // Get the user's ID
+  const userID = getUserID();
 
   if (postContent.trim() !== "") {
     const timestamp = new Date().toLocaleString();
@@ -28,38 +28,32 @@ function createPost() {
       const reader = new FileReader();
       reader.onload = (event) => {
         newPost.imageUrl = event.target.result;
-        storePost(newPost);
+        savePostToDatabase(newPost); // Use savePostToDatabase
         displayPost(newPost);
         document.getElementById('postContent').value = "";
         imageUpload.value = '';
       };
       reader.readAsDataURL(imageFile);
     } else {
-      storePost(newPost);
+      savePostToDatabase(newPost); // Use savePostToDatabase
       displayPost(newPost);
       document.getElementById('postContent').value = "";
     }
   }
 }
 
-// Function to store a post in local storage
-function storePost(post) {
-  let posts = getPosts();
-  posts.push(post);
-  localStorage.setItem('allPosts', JSON.stringify(posts)); // Use 'allPosts' key
-}
-
-// Function to get posts from local storage
-function getPosts() {
-  let posts = localStorage.getItem('allPosts'); // Use 'allPosts' key
-  if (posts) {
-    return JSON.parse(posts);
-  } else {
-    return [];
+// Function to store a post in the database
+async function savePostToDatabase(post) {
+  try {
+    const posts = await getPostsFromDatabase(); // Get posts from database
+    posts.push(post);
+    await savePostsToDatabase(posts); // Save updated posts to database
+  } catch (error) {
+    console.error('Error saving post to database:', error);
   }
 }
 
-// Function to display a post
+// Function to display a post 
 function displayPost(post) {
   const newPost = document.createElement('div');
   newPost.classList.add('post');
@@ -124,7 +118,7 @@ function getUserNameFromUserID(userID) {
 }
 
 // Function to toggle a reaction
-function toggleReaction(element, emoji) {
+async function toggleReaction(element, emoji) {
   const reactions = element.dataset.reactions ? JSON.parse(element.dataset.reactions) : {}; // Get existing reactions
   const button = element.querySelector(`button[data-emoji="${emoji}"]`);
   if (reactions[emoji]) {
@@ -138,12 +132,12 @@ function toggleReaction(element, emoji) {
   // Display the reaction
   displayReaction(element, emoji); // Call displayReaction here
 
-  // Update the post object in local storage with the new reactions
-  const posts = getPosts();
+  // Update the post object in the database with the new reactions
+  const posts = await getPostsFromDatabase();
   const postIndex = Array.from(document.getElementById('postsContainer').children).indexOf(element);
   if (postIndex !== -1) {
     posts[postIndex].reactions = reactions;
-    localStorage.setItem('allPosts', JSON.stringify(posts));
+    await savePostsToDatabase(posts);
   }
 }
 
@@ -177,14 +171,14 @@ function addComment(button) {
 }
 
 // Function to delete a post
-function deletePost(button) {
+async function deletePost(button) {
   const postToDelete = button.parentElement;
-  const posts = getPosts();
+  const posts = await getPostsFromDatabase();
   const index = Array.from(document.getElementById('postsContainer').children).indexOf(postToDelete);
 
   if (index !== -1) {
     posts.splice(index, 1);
-    localStorage.setItem('allPosts', JSON.stringify(posts));
+    await savePostsToDatabase(posts);
     postToDelete.remove();
   }
 }
@@ -203,8 +197,8 @@ function displayReaction(element, emoji) {
 }
 
 
-// Load posts from local storage on page load
-window.onload = function() {
-  const posts = getPosts();
+// Load posts from the database on page load
+window.onload = async function() {
+  const posts = await getPostsFromDatabase();
   posts.forEach(post => displayPost(post));
 };
