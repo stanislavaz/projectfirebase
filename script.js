@@ -84,3 +84,10 @@ window.onload = loadPosts;
 
 // Attach event listener to the Post button
 document.getElementById("postButton").addEventListener("click", createPost);
+const postsRef = firebase.database().ref('posts'); // Create a reference to the 'posts' node
+const newPostRef = postsRef.push(); // Push a new post
+newPostRef.set({
+  content: "Hello World!",
+  author: "User1",
+  timestamp: new Date().toLocaleString()
+});
