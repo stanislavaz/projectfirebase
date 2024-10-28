@@ -101,3 +101,4 @@ window.onload = loadPosts;
 
 // Attach event listener to the Post button
 document.getElementById("postButton").addEventListener("click", createPost);
+ 
