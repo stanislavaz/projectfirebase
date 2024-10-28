@@ -26,7 +26,6 @@ async function createPost() {
   const imageFile = imageUpload.files[0];
   let username = localStorage.getItem("username");
 
-  // Prompt for username if not set
   if (!username) {
     username = prompt("Enter your username:");
     if (username) localStorage.setItem("username", username);
@@ -40,22 +39,23 @@ async function createPost() {
   const newPost = {
     content: postContent,
     timestamp: new Date().toLocaleString(),
-    author: username
+    author: username,
   };
 
   // Handle image upload if a file is provided
   if (imageFile) {
-    const imageUrl = await uploadImage(imageFile);
+    const imageUrl = await uploadImage(imageFile); // Assuming you have this function
     newPost.imageUrl = imageUrl; // Add the image URL to the new post
   }
 
-  await savePostToDatabase(newPost);
+  await savePostToDatabase(newPost); // Save to Firestore
   loadPosts(); // Reload posts to show the new one
 
   // Clear form after posting
   document.getElementById("postContent").value = "";
   document.getElementById("imageUpload").value = "";
 }
+
 
 // Function to upload image and get URL
 async function uploadImage(file) {
