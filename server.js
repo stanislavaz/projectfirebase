@@ -24,7 +24,7 @@ app.get('/posts', (req, res) => {
 
 // Endpoint to create a new post
 app.post('/posts', (req, res) => {
-  const newPost = req.body; // Assuming new post is sent in the request body
+  const newPost = req.body; // Get the new post from the request body
   posts.push(newPost); // Add the new post to the posts array
   fs.writeFileSync(path.join(__dirname, 'posts.json'), JSON.stringify({ posts }), 'utf8');
   res.status(201).json(newPost); // Send a response with the new post
