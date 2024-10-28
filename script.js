@@ -3,14 +3,15 @@ function createPost() {
   const postContent = document.getElementById('postContent').value;
   const imageUpload = document.getElementById('imageUpload');
   const imageFile = imageUpload.files[0];
+  const author = prompt("Please enter your username:"); // Get author's name
 
-  if (postContent.trim() !== "") {
+  if (postContent.trim() !== "" && author) { // Only proceed if author name is entered
     const timestamp = new Date().toLocaleString();
     let newPost = {
       content: postContent,
       timestamp: timestamp,
       reactions: {},
-      author: "You" // Add author for testing
+      author: author // Store the entered author name
     };
 
     if (imageFile) {
