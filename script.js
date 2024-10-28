@@ -1,35 +1,43 @@
+// Function to generate a unique user ID (if not already present)
+function getUserID() {
+  let userID = localStorage.getItem('userID');
+  if (!userID) {
+    userID = Date.now().toString(36) + Math.random().toString(36).substring(2, 15); // Generate a random ID
+    localStorage.setItem('userID', userID);
+  }
+  return userID;
+}
+
 // Function to create a new post
 function createPost() {
   const postContent = document.getElementById('postContent').value;
   const imageUpload = document.getElementById('imageUpload');
   const imageFile = imageUpload.files[0];
+  const userID = getUserID(); // Get the user's ID
 
   if (postContent.trim() !== "") {
-    const author = prompt("Please enter your username:"); // Get author's name
-    if (author) { // Only proceed if author name is entered
-      const timestamp = new Date().toLocaleString();
-      let newPost = {
-        content: postContent,
-        timestamp: timestamp,
-        reactions: {},
-        author: author // Store the entered author name
-      };
+    const timestamp = new Date().toLocaleString();
+    let newPost = {
+      content: postContent,
+      timestamp: timestamp,
+      reactions: {},
+      author: userID // Store the user ID as the author
+    };
 
-      if (imageFile) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          newPost.imageUrl = event.target.result;
-          storePost(newPost);
-          displayPost(newPost);
-          document.getElementById('postContent').value = "";
-          imageUpload.value = '';
-        };
-        reader.readAsDataURL(imageFile);
-      } else {
+    if (imageFile) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        newPost.imageUrl = event.target.result;
         storePost(newPost);
         displayPost(newPost);
         document.getElementById('postContent').value = "";
-      }
+        imageUpload.value = '';
+      };
+      reader.readAsDataURL(imageFile);
+    } else {
+      storePost(newPost);
+      displayPost(newPost);
+      document.getElementById('postContent').value = "";
     }
   }
 }
@@ -38,12 +46,12 @@ function createPost() {
 function storePost(post) {
   let posts = getPosts();
   posts.push(post);
-  localStorage.setItem('posts', JSON.stringify(posts));
+  localStorage.setItem('allPosts', JSON.stringify(posts)); // Use 'allPosts' key
 }
 
 // Function to get posts from local storage
 function getPosts() {
-  let posts = localStorage.getItem('posts');
+  let posts = localStorage.getItem('allPosts'); // Use 'allPosts' key
   if (posts) {
     return JSON.parse(posts);
   } else {
@@ -56,8 +64,11 @@ function displayPost(post) {
   const newPost = document.createElement('div');
   newPost.classList.add('post');
 
+  // Get the author's name from the userID
+  const authorName = getUserNameFromUserID(post.author);
+
   let postHTML = `
-        <h3>${post.author}</h3>
+        <h3>${authorName}</h3>
         <p class="timestamp">${post.timestamp}</p>
         <p>${post.content}</p>
     `;
@@ -90,7 +101,7 @@ function displayPost(post) {
   newPost.dataset.reactions = JSON.stringify(post.reactions);
 
   // Add "React" button if the post is not by the current user
-  if (post.author !== "You") {
+  if (post.author !== getUserID()) { 
     const reactButton = document.createElement('button');
     reactButton.textContent = "React";
     reactButton.addEventListener('click', () => {
@@ -105,51 +116,11 @@ function displayPost(post) {
   }
 }
 
-// Function to add reaction buttons to a post or comment
-function addReactionButtons(element, reactions) {
-  const reactionContainer = element.querySelector('.reactions');
-
-  // Sample GIF URLs (replace with your own)
-  const gifUrls = {
-    '👍': 'https://i.postimg.cc/DZC4Sxz8/1213-gimmefood.gif',
-    '👎': 'https://i.postimg.cc/jSr2dphM/2941-bearthumbsup.gif',
-    '❤️': 'https://i.postimg.cc/Hxjshdpk/4672-milk9.gif',
-    '😂': 'https://i.postimg.cc/2jbnqf4Y/6461-Hug-Bear-Feels.gif',
-    '🤯': 'https://i.postimg.cc/Dy1sgdjY/51520-milkandmochalove1.gif',
-    '🥺': 'https://i.postimg.cc/TP3DT8RZ/58253-milkandmochalove5.gif',
-    '✨': 'https://i.postimg.cc/sXBGZpGm/2660-bearslide.gif',
-    '💯': 'https://i.postimg.cc/MZQj6mSK/3264-milk2.gif',
-    '😎': 'https://i.postimg.cc/sDCGvGjP/5296-milk4.gif',
-    '😭': 'https://i.postimg.cc/t4X1z0VY/11596-milkandmochalove4.gif',
-    '😴': 'https://i.postimg.cc/s2LvyvHh/49142-milkandmochalove6.gif',
-    '😮‍💨': 'https://i.postimg.cc/s2LvyvHh/49142-milkandmochalove6.gif'
-  };
-
-  for (const emoji in gifUrls) {
-    const button = document.createElement('button');
-    // Remove the text content
-    // button.textContent = emoji;
-
-    // Add data-emoji attribute to the button
-    button.dataset.emoji = emoji;
-    button.style.width = '30px';
-    button.style.height = '30px';
-    button.style.border = 'none';
-    button.style.borderRadius = '5px';
-    button.style.backgroundImage = `url(${gifUrls[emoji]})`;
-    button.style.backgroundSize = 'cover';
-
-    // Check if reaction is already added
-    if (reactions && reactions[emoji]) {
-      button.classList.add('active'); // Add active class for styling
-    }
-
-    button.addEventListener('click', () => {
-      toggleReaction(element, emoji);
-    });
-
-    reactionContainer.appendChild(button);
-  }
+// Helper function to get username from userID
+function getUserNameFromUserID(userID) {
+  // You'll need to implement this function based on how you store usernames
+  // For now, let's just display the userID
+  return userID;
 }
 
 // Function to toggle a reaction
@@ -172,7 +143,7 @@ function toggleReaction(element, emoji) {
   const postIndex = Array.from(document.getElementById('postsContainer').children).indexOf(element);
   if (postIndex !== -1) {
     posts[postIndex].reactions = reactions;
-    localStorage.setItem('posts', JSON.stringify(posts));
+    localStorage.setItem('allPosts', JSON.stringify(posts));
   }
 }
 
@@ -213,7 +184,7 @@ function deletePost(button) {
 
   if (index !== -1) {
     posts.splice(index, 1);
-    localStorage.setItem('posts', JSON.stringify(posts));
+    localStorage.setItem('allPosts', JSON.stringify(posts));
     postToDelete.remove();
   }
 }
