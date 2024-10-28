@@ -3,31 +3,33 @@ function createPost() {
   const postContent = document.getElementById('postContent').value;
   const imageUpload = document.getElementById('imageUpload');
   const imageFile = imageUpload.files[0];
-  const author = prompt("Please enter your username:"); // Get author's name
 
-  if (postContent.trim() !== "" && author) { // Only proceed if author name is entered
-    const timestamp = new Date().toLocaleString();
-    let newPost = {
-      content: postContent,
-      timestamp: timestamp,
-      reactions: {},
-      author: author // Store the entered author name
-    };
+  if (postContent.trim() !== "") {
+    const author = prompt("Please enter your username:"); // Get author's name
+    if (author) { // Only proceed if author name is entered
+      const timestamp = new Date().toLocaleString();
+      let newPost = {
+        content: postContent,
+        timestamp: timestamp,
+        reactions: {},
+        author: author // Store the entered author name
+      };
 
-    if (imageFile) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        newPost.imageUrl = event.target.result;
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          newPost.imageUrl = event.target.result;
+          storePost(newPost);
+          displayPost(newPost);
+          document.getElementById('postContent').value = "";
+          imageUpload.value = '';
+        };
+        reader.readAsDataURL(imageFile);
+      } else {
         storePost(newPost);
         displayPost(newPost);
         document.getElementById('postContent').value = "";
-        imageUpload.value = '';
-      };
-      reader.readAsDataURL(imageFile);
-    } else {
-      storePost(newPost);
-      displayPost(newPost);
-      document.getElementById('postContent').value = "";
+      }
     }
   }
 }
