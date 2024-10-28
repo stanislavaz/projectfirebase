@@ -29,7 +29,7 @@ async function createPost() {
   const imageUpload = document.getElementById('imageUpload');
   const imageFile = imageUpload.files[0];
   const userID = getUserID();
-  const username = await getUserName();
+  let username = await getUserName();
 
   if (postContent.trim() !== "" && username) { // Only proceed if username is set
     const timestamp = new Date().toLocaleString();
@@ -57,7 +57,7 @@ async function createPost() {
     }
   } else if (postContent.trim() !== "" && !username) {
     // Prompt for username if it's not set
-    const username = prompt("Please enter your username:");
+    username = prompt("Please enter your username:");
     if (username) {
       await setUserName(username); // Store the username in the database
       await createPost(); // Retry creating the post
