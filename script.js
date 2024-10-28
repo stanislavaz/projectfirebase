@@ -1,5 +1,5 @@
 // Function to create a new post
-async function createPost() {
+function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
@@ -25,15 +25,13 @@ async function createPost() {
   // Handle image upload if a file is provided
   if (imageFile) {
     const reader = new FileReader();
-    reader.onload = async (event) => {
+    reader.onload = (event) => {
       newPost.imageUrl = event.target.result;
-      await savePostToServer(newPost); // Save to server once image is loaded
-      loadPosts(); // Reload posts to show the new one
+      savePostToServer(newPost); // Send post to server once image is loaded
     };
     reader.readAsDataURL(imageFile);
   } else {
-    await savePostToServer(newPost); // Save to server if no image
-    loadPosts();
+    savePostToServer(newPost); // Send post to server if no image
   }
 
   // Clear form after posting
@@ -41,40 +39,41 @@ async function createPost() {
   document.getElementById("imageUpload").value = "";
 }
 
-// Function to save a post to the server
-async function savePostToServer(post) {
-  try {
-    const response = await fetch('/posts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(post)
-    });
+// Function to send post to the server
+function savePostToServer(post) {
+  fetch('/posts', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(post),
+  })
+  .then(response => {
     if (!response.ok) {
-      console.error('Failed to save post to server:', response.status);
+      throw new Error('Network response was not ok');
     }
-  } catch (error) {
-    console.error('Error saving post to server:', error);
-  }
+    return response.json();
+  })
+  .then(() => {
+    loadPosts(); // Reload posts to show the new one
+  })
+  .catch(error => {
+    console.error('Error saving post:', error);
+  });
 }
 
 // Function to load posts from the server
-async function loadPosts() {
-  try {
-    const response = await fetch('/posts');
-    const data = await response.json();
-    const posts = data.posts || [];
-    const postsContainer = document.getElementById("postsContainer");
-
-    // Clear existing posts
-    postsContainer.innerHTML = "";
-
-    // Display each post
-    posts.forEach(displayPost);
-  } catch (error) {
-    console.error('Error loading posts:', error);
-  }
+function loadPosts() {
+  fetch('/posts')
+    .then(response => response.json())
+    .then(data => {
+      const postsContainer = document.getElementById("postsContainer");
+      postsContainer.innerHTML = ""; // Clear existing posts
+      data.posts.forEach(displayPost); // Display each post
+    })
+    .catch(error => {
+      console.error('Error loading posts:', error);
+    });
 }
 
 // Function to display a post in the DOM
