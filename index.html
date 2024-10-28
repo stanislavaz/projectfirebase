@@ -3,23 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Our Blog</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Your App</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+  </script>
 </head>
 <body>
-  <header>
-    <h1>Our Blog</h1>
-  </header>
-  <main>
-    <div id="postsContainer">
-    </div>
-    <div id="newPostForm">
-      <h2>Write a New Post</h2>
-      <textarea id="postContent" placeholder="Write your post here..."></textarea>
-      <input type="file" id="imageUpload" accept="image/*">
-      <button id="postButton">Post</button>
-    </div>
-  </main>
-  <script src="script.js"></script>
+  <!-- Your HTML content -->
 </body>
 </html>
