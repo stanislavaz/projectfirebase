@@ -31,32 +31,32 @@ async function savePostsToDatabase(posts) {
   }
 }
 
-// Function to get usernames from the database
-async function getUsernamesFromDatabase() {
+// Function to get usernames and userIDs from the database
+async function getUserDataFromDatabase() {
   try {
     const response = await fetch(databasePath);
     const data = await response.json();
-    return data.usernames || {}; // Return an empty object if the database is empty
+    return { usernames: data.usernames || {}, userIDs: data.userIDs || {} }; // Return empty objects if not found
   } catch (error) {
-    console.error('Error fetching usernames from database:', error);
-    return {}; // Return an empty object on error
+    console.error('Error fetching user data from database:', error);
+    return { usernames: {}, userIDs: {} }; // Return empty objects on error
   }
 }
 
-// Function to save usernames to the database
-async function saveUsernamesToDatabase(usernames) {
+// Function to save usernames and userIDs to the database
+async function saveUserDataToDatabase(usernames, userIDs) {
   try {
     const response = await fetch(databasePath, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ usernames: usernames })
+      body: JSON.stringify({ usernames: usernames, userIDs: userIDs })
     });
     if (!response.ok) {
-      console.error('Error saving usernames to database:', response.status);
+      console.error('Error saving user data to database:', response.status);
     }
   } catch (error) {
-    console.error('Error saving usernames to database:', error);
+    console.error('Error saving user data to database:', error);
   }
 }
