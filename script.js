@@ -1,6 +1,5 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
 
@@ -17,16 +16,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-
-// Function to upload an image to Firebase Storage
-async function uploadImage(file) {
-  const storageRef = ref(storage, `images/${file.name}`);
-  await uploadBytes(storageRef, file);
-  return await getDownloadURL(storageRef);
-}
 
 // Function to create a new post
 async function createPost() {
@@ -54,29 +45,33 @@ async function createPost() {
 
   // Handle image upload if a file is provided
   if (imageFile) {
-    try {
-      const imageUrl = await uploadImage(imageFile); // Upload image to Firebase Storage
-      newPost.imageUrl = imageUrl; // Add image URL to the new post
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      alert("Error uploading image. Please try again.");
-      return; // Exit the function if image upload fails
-    }
+    const imageUrl = await uploadImage(imageFile);
+    newPost.imageUrl = imageUrl; // Add the image URL to the new post
   }
 
-  // Save the post to Firestore
-  try {
-    await addDoc(collection(db, "posts"), newPost);
-    console.log("Post successfully added!");
-    loadPosts(); // Reload posts to show the new one
-  } catch (error) {
-    console.error("Error saving post to Firestore:", error);
-    alert("Error saving post. Please try again.");
-  }
+  await savePostToDatabase(newPost);
+  loadPosts(); // Reload posts to show the new one
 
   // Clear form after posting
   document.getElementById("postContent").value = "";
   document.getElementById("imageUpload").value = "";
+}
+
+// Function to upload image and get URL
+async function uploadImage(file) {
+  const storageRef = ref(storage, `images/${file.name}`);
+  await uploadBytes(storageRef, file);
+  return await getDownloadURL(storageRef);
+}
+
+// Function to save post to Firestore
+async function savePostToDatabase(post) {
+  try {
+    const docRef = await addDoc(collection(db, "posts"), post);
+    console.log("Post written with ID: ", docRef.id);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
 }
 
 // Function to load posts from Firestore
@@ -84,14 +79,11 @@ async function loadPosts() {
   const postsContainer = document.getElementById("postsContainer");
   postsContainer.innerHTML = ""; // Clear existing posts
 
-  try {
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    querySnapshot.forEach((doc) => {
-      displayPost(doc.data()); // Pass the post data to display
-    });
-  } catch (error) {
-    console.error("Error loading posts:", error);
-  }
+  const querySnapshot = await getDocs(collection(db, "posts"));
+  querySnapshot.forEach((doc) => {
+    const post = { id: doc.id, ...doc.data() };
+    displayPost(post); // Display each post
+  });
 }
 
 // Function to display a post in the DOM
@@ -117,9 +109,4 @@ function displayPost(post) {
 window.onload = loadPosts;
 
 // Attach event listener to the Post button
-const postButton = document.getElementById("postButton");
-if (postButton) {
-  postButton.addEventListener("click", createPost);
-} else {
-  console.error("Post button not found!");
-}
+document.getElementById("postButton").addEventListener("click", createPost);
