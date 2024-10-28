@@ -210,5 +210,4 @@ function deleteComment(button) {
 function displayReaction(element, emoji) {
   // You can implement your specific display logic here, 
   // for example, adding the emoji to an element, or changing the button's style.
-  console.log(`Reaction ${emoji} toggled on element:`, element);
-}
+  console.log(`Reaction ${
