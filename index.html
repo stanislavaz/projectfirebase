@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Our Blog</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Firebase App (the core Firebase SDK) is always required and must be first -->
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
+  <!-- Include Firestore and Storage -->
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js"></script>
 </head>
 <body>
   <header>
@@ -19,13 +25,8 @@
       <button id="postButton">Post</button>
     </div>
   </main>
-  <script src="script.js"></script>
+  
+  <!-- Your script must be placed after Firebase SDKs -->
+  <script type="module" src="script.js"></script>
 </body>
 </html>
-<!-- Firebase App (the core Firebase SDK) is always required and must be first -->
-<script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
-
-<!-- Include Firestore -->
-<script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js"></script>
-
