@@ -78,6 +78,8 @@ function displayPost(post) {
 
   // Add reaction buttons to the post
   addReactionButtons(newPost, post.reactions);
+  // Store reactions on the post element
+  newPost.dataset.reactions = JSON.stringify(post.reactions);
 
   // Add "React" button if the post is not by the current user
   if (post.author !== "You") {
@@ -210,4 +212,12 @@ function deleteComment(button) {
 function displayReaction(element, emoji) {
   // You can implement your specific display logic here, 
   // for example, adding the emoji to an element, or changing the button's style.
-  console.log(`Reaction ${
+  console.log(`Reaction ${emoji} toggled on element:`, element); 
+}
+
+
+// Load posts from local storage on page load
+window.onload = function() {
+  const posts = getPosts();
+  posts.forEach(post => displayPost(post));
+};
