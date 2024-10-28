@@ -1,4 +1,4 @@
-// Function to generate a unique user ID (if not already present)
+// Function to get a unique user ID (if not already present)
 function getUserID() {
   let userID = localStorage.getItem('userID');
   if (!userID) {
@@ -8,36 +8,59 @@ function getUserID() {
   return userID;
 }
 
+// Function to get the username for the current user
+async function getUserName() {
+  const userID = getUserID();
+  let usernames = await getUsernamesFromDatabase();
+  return usernames[userID] || null;
+}
+
+// Function to set the username for the current user
+async function setUserName(username) {
+  const userID = getUserID();
+  let usernames = await getUsernamesFromDatabase();
+  usernames[userID] = username;
+  await saveUsernamesToDatabase(usernames);
+}
+
 // Function to create a new post
 async function createPost() {
   const postContent = document.getElementById('postContent').value;
   const imageUpload = document.getElementById('imageUpload');
   const imageFile = imageUpload.files[0];
   const userID = getUserID();
+  const username = await getUserName();
 
-  if (postContent.trim() !== "") {
+  if (postContent.trim() !== "" && username) { // Only proceed if username is set
     const timestamp = new Date().toLocaleString();
     let newPost = {
       content: postContent,
       timestamp: timestamp,
       reactions: {},
-      author: userID // Store the user ID as the author
+      author: username // Store the username as the author
     };
 
     if (imageFile) {
       const reader = new FileReader();
       reader.onload = (event) => {
         newPost.imageUrl = event.target.result;
-        savePostToDatabase(newPost); // Use savePostToDatabase
+        savePostToDatabase(newPost);
         displayPost(newPost);
         document.getElementById('postContent').value = "";
         imageUpload.value = '';
       };
       reader.readAsDataURL(imageFile);
     } else {
-      savePostToDatabase(newPost); // Use savePostToDatabase
+      savePostToDatabase(newPost);
       displayPost(newPost);
       document.getElementById('postContent').value = "";
+    }
+  } else if (postContent.trim() !== "" && !username) {
+    // Prompt for username if it's not set
+    const username = prompt("Please enter your username:");
+    if (username) {
+      await setUserName(username); // Store the username in the database
+      await createPost(); // Retry creating the post
     }
   }
 }
@@ -58,11 +81,8 @@ function displayPost(post) {
   const newPost = document.createElement('div');
   newPost.classList.add('post');
 
-  // Get the author's name from the userID
-  const authorName = getUserNameFromUserID(post.author);
-
   let postHTML = `
-        <h3>${authorName}</h3>
+        <h3>${post.author}</h3>
         <p class="timestamp">${post.timestamp}</p>
         <p>${post.content}</p>
     `;
@@ -95,7 +115,7 @@ function displayPost(post) {
   newPost.dataset.reactions = JSON.stringify(post.reactions);
 
   // Add "React" button if the post is not by the current user
-  if (post.author !== getUserID()) { 
+  if (post.author !== await getUserName()) { 
     const reactButton = document.createElement('button');
     reactButton.textContent = "React";
     reactButton.addEventListener('click', () => {
@@ -110,12 +130,6 @@ function displayPost(post) {
   }
 }
 
-// Helper function to get username from userID
-function getUserNameFromUserID(userID) {
-  // You'll need to implement this function based on how you store usernames
-  // For now, let's just display the userID
-  return userID;
-}
 
 // Function to toggle a reaction
 async function toggleReaction(element, emoji) {
