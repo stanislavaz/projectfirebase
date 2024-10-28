@@ -194,31 +194,4 @@ function addComment(button) {
 // Function to delete a post
 async function deletePost(button) {
   const postToDelete = button.parentElement;
-  const posts = await getPostsFromDatabase();
-  const index = Array.from(document.getElementById('postsContainer').children).indexOf(postToDelete);
-
-  if (index !== -1) {
-    posts.splice(index, 1);
-    await savePostsToDatabase(posts);
-    postToDelete.remove();
-  }
-}
-
-// Function to delete a comment
-function deleteComment(button) {
-  const commentToDelete = button.parentElement;
-  commentToDelete.remove();
-}
-
-// Function to display a reaction (implementation example)
-function displayReaction(element, emoji) {
-  // You can implement your specific display logic here, 
-  // for example, adding the emoji to an element, or changing the button's style.
-  console.log(`Reaction ${emoji} toggled on element:`, element); 
-}
-
-// Function to load posts from the database and display them
-async function loadPosts() {
-  const posts = await getPostsFromDatabase();
-  const postsContainer = document.getElementById('postsContainer');
-  // Clear existing
+  const posts = await
