@@ -54,7 +54,7 @@ function displayPost(post) {
   newPost.classList.add('post');
 
   let postHTML = `
-        <h3>New Post</h3>
+        <h3>${post.author}</h3>
         <p class="timestamp">${post.timestamp}</p>
         <p>${post.content}</p>
     `;
