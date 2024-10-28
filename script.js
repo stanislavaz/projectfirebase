@@ -205,3 +205,10 @@ function deleteComment(button) {
   const commentToDelete = button.parentElement;
   commentToDelete.remove();
 }
+
+// Function to display a reaction (implementation example)
+function displayReaction(element, emoji) {
+  // You can implement your specific display logic here, 
+  // for example, adding the emoji to an element, or changing the button's style.
+  console.log(`Reaction ${emoji} toggled on element:`, element);
+}
