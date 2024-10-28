@@ -1,10 +1,11 @@
 // Function to create a new post
-async function createPost() {
+function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
   let username = localStorage.getItem("username");
 
+  // Prompt for username if not set
   if (!username) {
     username = prompt("Enter your username:");
     if (username) localStorage.setItem("username", username);
@@ -24,14 +25,14 @@ async function createPost() {
   // Handle image upload if a file is provided
   if (imageFile) {
     const reader = new FileReader();
-    reader.onload = async (event) => {
+    reader.onload = (event) => {
       newPost.imageUrl = event.target.result;
-      await savePostToServer(newPost); // Save to server once image is loaded
+      savePostToLocal(newPost); // Save to localStorage once image is loaded
       loadPosts(); // Reload posts to show the new one
     };
     reader.readAsDataURL(imageFile);
   } else {
-    await savePostToServer(newPost); // Save to server if no image
+    savePostToLocal(newPost); // Save to localStorage if no image
     loadPosts();
   }
 
@@ -40,38 +41,23 @@ async function createPost() {
   document.getElementById("imageUpload").value = "";
 }
 
-// Function to save a post to the server
-async function savePostToServer(post) {
-  try {
-    const response = await fetch('/posts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(post)
-    });
-    if (!response.ok) throw new Error("Failed to save post");
-  } catch (error) {
-    console.error("Error saving post:", error);
-  }
+// Function to save a post to localStorage
+function savePostToLocal(post) {
+  const posts = JSON.parse(localStorage.getItem("posts")) || [];
+  posts.push(post); // Add the new post to the array
+  localStorage.setItem("posts", JSON.stringify(posts)); // Save array back to localStorage
 }
 
-// Function to load posts from the server
-async function loadPosts() {
-  try {
-    const response = await fetch('/posts');
-    const data = await response.json();
-    const posts = data.posts || [];
+// Function to load posts from localStorage
+function loadPosts() {
+  const posts = JSON.parse(localStorage.getItem("posts")) || [];
+  const postsContainer = document.getElementById("postsContainer");
 
-    // Clear existing posts
-    const postsContainer = document.getElementById("postsContainer");
-    postsContainer.innerHTML = "";
+  // Clear existing posts
+  postsContainer.innerHTML = "";
 
-    // Display each post
-    posts.forEach(displayPost);
-  } catch (error) {
-    console.error("Error loading posts:", error);
-  }
+  // Display each post
+  posts.forEach(displayPost);
 }
 
 // Function to display a post in the DOM
