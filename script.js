@@ -1,13 +1,10 @@
-// Function to create a new post
-
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBVh0DfMKE1IKTMadyTLO_c54Y6o5BCnTY",
   authDomain: "liebe-f332d.firebaseapp.com",
@@ -17,20 +14,22 @@ const firebaseConfig = {
   appId: "1:199124008155:web:04f7f5582811693fdda0fe",
   measurementId: "G-TE1VF9N946"
 };
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
 
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
 const storage = getStorage(app);
 
+// Function to upload an image to Firebase Storage
 async function uploadImage(file) {
   const storageRef = ref(storage, `images/${file.name}`);
   await uploadBytes(storageRef, file);
   return await getDownloadURL(storageRef);
 }
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-function createPost() {
+// Function to create a new post
+async function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
@@ -55,14 +54,22 @@ function createPost() {
 
   // Handle image upload if a file is provided
   if (imageFile) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      newPost.imageUrl = event.target.result;
-      savePostToServer(newPost); // Send post to server once image is loaded
-    };
-    reader.readAsDataURL(imageFile);
-  } else {
-    savePostToServer(newPost); // Send post to server if no image
+    try {
+      const imageUrl = await uploadImage(imageFile); // Upload image to Firebase Storage
+      newPost.imageUrl = imageUrl; // Add image URL to the new post
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      return;
+    }
+  }
+
+  // Save the post to Firestore
+  try {
+    await addDoc(collection(db, "posts"), newPost);
+    console.log("Post successfully added!");
+    loadPosts(); // Reload posts to show the new one
+  } catch (error) {
+    console.error("Error saving post to Firestore:", error);
   }
 
   // Clear form after posting
@@ -70,41 +77,19 @@ function createPost() {
   document.getElementById("imageUpload").value = "";
 }
 
-// Function to send post to the server
-function savePostToServer(post) {
-  fetch('/posts', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(post),
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  })
-  .then(() => {
-    loadPosts(); // Reload posts to show the new one
-  })
-  .catch(error => {
-    console.error('Error saving post:', error);
-  });
-}
+// Function to load posts from Firestore
+async function loadPosts() {
+  const postsContainer = document.getElementById("postsContainer");
+  postsContainer.innerHTML = ""; // Clear existing posts
 
-// Function to load posts from the server
-function loadPosts() {
-  fetch('/posts')
-    .then(response => response.json())
-    .then(data => {
-      const postsContainer = document.getElementById("postsContainer");
-      postsContainer.innerHTML = ""; // Clear existing posts
-      data.posts.forEach(displayPost); // Display each post
-    })
-    .catch(error => {
-      console.error('Error loading posts:', error);
+  try {
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    querySnapshot.forEach((doc) => {
+      displayPost(doc.data()); // Pass the post data to display
     });
+  } catch (error) {
+    console.error("Error loading posts:", error);
+  }
 }
 
 // Function to display a post in the DOM
