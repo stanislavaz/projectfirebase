@@ -3,179 +3,89 @@ async function createPost() {
   const postContent = document.getElementById('postContent').value;
   const imageUpload = document.getElementById('imageUpload');
   const imageFile = imageUpload.files[0];
-  const userID = await getUserID();
-  let username = await getUserName();
+  let username = getUserName() || prompt("Please enter your username:");
 
-  if (postContent.trim() !== "" && username) { // Only proceed if username is set
+  if (username) {
+    setUserName(username); // Save username in local storage
+
     const timestamp = new Date().toLocaleString();
     let newPost = {
       content: postContent,
       timestamp: timestamp,
+      author: username,
       reactions: {},
-      author: username // Store the username as the author
     };
 
     if (imageFile) {
       const reader = new FileReader();
       reader.onload = (event) => {
         newPost.imageUrl = event.target.result;
-        savePostToDatabase(newPost);
+        savePostToLocalStorage(newPost);
         displayPost(newPost);
-        document.getElementById('postContent').value = "";
-        imageUpload.value = '';
-        // Refresh the display after saving
-        loadPosts();
+        clearForm();
       };
       reader.readAsDataURL(imageFile);
     } else {
-      savePostToDatabase(newPost);
+      savePostToLocalStorage(newPost);
       displayPost(newPost);
-      document.getElementById('postContent').value = "";
-      // Refresh the display after saving
-      loadPosts();
-    }
-  } else if (postContent.trim() !== "" && !username) {
-    // Prompt for username if it's not set
-    username = prompt("Please enter your username:");
-    if (username) {
-      await setUserName(username); // Store the username in the database
-      await createPost(); // Retry creating the post
+      clearForm();
     }
   }
 }
 
-// Function to store a post in the database
-async function savePostToDatabase(post) {
-  try {
-    const response = await fetch('/posts', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ posts: [post] }) // Send post as an array
-    });
-    if (!response.ok) {
-      console.error('Error saving post to database:', response.status);
-    }
-  } catch (error) {
-    console.error('Error saving post to database:', error);
-  }
+// Helper function to clear the form after posting
+function clearForm() {
+  document.getElementById('postContent').value = "";
+  document.getElementById('imageUpload').value = '';
 }
 
-// Function to get the username for the current user
-async function getUserName() {
-  const userID = await getUserID();
-  const response = await fetch('/userData');
-  const data = await response.json();
-  return data.usernames[userID] || null;
+// Save a post to local storage
+function savePostToLocalStorage(post) {
+  const posts = JSON.parse(localStorage.getItem('posts')) || [];
+  posts.push(post);
+  localStorage.setItem('posts', JSON.stringify(posts));
 }
 
-// Function to set the username for the current user
-async function setUserName(username) {
-  const userID = await getUserID();
-  const response = await fetch('/userData', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ usernames: { [userID]: username } }) // Send username as an object
-  });
-  if (!response.ok) {
-    console.error('Error saving username to database:', response.status);
-  }
+// Load posts from local storage and display them
+function loadPosts() {
+  const posts = JSON.parse(localStorage.getItem('posts')) || [];
+  posts.forEach(post => displayPost(post));
 }
 
-// Function to get a unique user ID (if not already present)
-async function getUserID() {
-  const response = await fetch('/userData');
-  const data = await response.json();
-  let userID = localStorage.getItem('userID');
-  if (!userID) {
-    userID = Date.now().toString(36) + Math.random().toString(36).substring(2, 15); // Generate a random ID
-    data.userIDs[userID] = true; // Store the userID in the database
-    await saveUserDataToDatabase(data.usernames, data.userIDs);
-    localStorage.setItem('userID', userID);
-  }
-  return userID;
+// Get the username from local storage
+function getUserName() {
+  return localStorage.getItem('username');
 }
 
-// Function to display a post 
+// Set the username in local storage
+function setUserName(username) {
+  localStorage.setItem('username', username);
+}
+
+// Function to display a post
 function displayPost(post) {
   const newPost = document.createElement('div');
   newPost.classList.add('post');
 
   let postHTML = `
-        <h3>${post.author}</h3>
-        <p class="timestamp">${post.timestamp}</p>
-        <p>${post.content}</p>
-    `;
+      <h3>${post.author}</h3>
+      <p class="timestamp">${post.timestamp}</p>
+      <p>${post.content}</p>
+  `;
 
   if (post.imageUrl) {
     postHTML += `<img src="${post.imageUrl}" alt="Post Image">`;
   }
 
   postHTML += `
-        <div class="comments">
-            </div>
-        <textarea id="newComment" placeholder="Write your comment..."></textarea>
-        <button onclick="addComment(this)">Comment</button>
-        <button onclick="deletePost(this)">Delete Post</button>
-        <div class="reactions" style="display:none;">
-            </div>
-    `;
+      <div class="comments"></div>
+      <textarea placeholder="Write your comment..."></textarea>
+      <button onclick="addComment(this)">Comment</button>
+      <button onclick="deletePost(this)">Delete Post</button>
+  `;
 
   newPost.innerHTML = postHTML;
-  document.getElementById('postsContainer').appendChild(newPost); // Add the post to the DOM
-
-  // Load existing reactions from the post element (if they exist)
-  const existingReactions = newPost.dataset.reactions ? JSON.parse(newPost.dataset.reactions) : {};
-  // Update the post's reactions with the loaded data
-  post.reactions = existingReactions;
-
-  // Add reaction buttons to the post
-  addReactionButtons(newPost, post.reactions);
-  // Store reactions on the post element
-  newPost.dataset.reactions = JSON.stringify(post.reactions);
-
-  // Add "React" button if the post is not by the current user
-  if (post.author !== await getUserName()) { 
-    const reactButton = document.createElement('button');
-    reactButton.textContent = "React";
-    reactButton.addEventListener('click', () => {
-      const reactionsContainer = newPost.querySelector('.reactions');
-      if (reactionsContainer.style.display === "none") {
-        reactionsContainer.style.display = "block";
-      } else {
-        reactionsContainer.style.display = "none";
-      }
-    });
-    newPost.appendChild(reactButton);
-  }
-}
-
-
-// Function to toggle a reaction
-async function toggleReaction(element, emoji) {
-  const reactions = element.dataset.reactions ? JSON.parse(element.dataset.reactions) : {}; // Get existing reactions
-  const button = element.querySelector(`button[data-emoji="${emoji}"]`);
-  if (reactions[emoji]) {
-    delete reactions[emoji];
-    button.classList.remove('active'); // Remove active class
-  } else {
-    reactions[emoji] = true;
-    button.classList.add('active'); // Add active class
-  }
-  element.dataset.reactions = JSON.stringify(reactions); // Update reactions data
-  // Display the reaction
-  displayReaction(element, emoji); // Call displayReaction here
-
-  // Update the post object in the database with the new reactions
-  const posts = await getPostsFromDatabase();
-  const postIndex = Array.from(document.getElementById('postsContainer').children).indexOf(element);
-  if (postIndex !== -1) {
-    posts[postIndex].reactions = reactions;
-    await savePostsToDatabase(posts);
-  }
+  document.getElementById('postsContainer').appendChild(newPost);
 }
 
 // Function to add a comment
@@ -185,68 +95,30 @@ function addComment(button) {
     const newComment = document.createElement('div');
     newComment.classList.add('comment');
     newComment.textContent = commentContent;
-    newComment.innerHTML += `<button onclick="deleteComment(this)">Delete Comment</button>`; // Add delete button
+    newComment.innerHTML += `<button onclick="deleteComment(this)">Delete Comment</button>`;
     button.parentElement.querySelector('.comments').appendChild(newComment);
     button.previousElementSibling.value = "";
-    addReactionButtons(newComment, {}); // Add reactions to the new comment
-
-    // Add "React" button if the comment is not by the current user
-    if (post.author !== "You") {
-      const reactButton = document.createElement('button');
-      reactButton.textContent = "React";
-      reactButton.addEventListener('click', () => {
-        const reactionsContainer = newComment.querySelector('.reactions');
-        if (reactionsContainer.style.display === "none") {
-          reactionsContainer.style.display = "block";
-        } else {
-          reactionsContainer.style.display = "none";
-        }
-      });
-      newComment.appendChild(reactButton);
-    }
   }
 }
 
 // Function to delete a post
-async function deletePost(button) {
+function deletePost(button) {
   const postToDelete = button.parentElement;
-  const posts = await getPostsFromDatabase();
-  const index = Array.from(document.getElementById('postsContainer').children).indexOf(postToDelete);
-
-  if (index !== -1) {
-    posts.splice(index, 1);
-    await savePostsToDatabase(posts);
-    postToDelete.remove();
-  }
+  const posts = JSON.parse(localStorage.getItem('posts')) || [];
+  const updatedPosts = posts.filter((post, index) => {
+    return index !== Array.from(document.getElementById('postsContainer').children).indexOf(postToDelete);
+  });
+  localStorage.setItem('posts', JSON.stringify(updatedPosts));
+  postToDelete.remove();
 }
 
 // Function to delete a comment
 function deleteComment(button) {
-  const commentToDelete = button.parentElement;
-  commentToDelete.remove();
+  button.parentElement.remove();
 }
 
-// Function to display a reaction (implementation example)
-function displayReaction(element, emoji) {
-  // You can implement your specific display logic here, 
-  // for example, adding the emoji to an element, or changing the button's style.
-  console.log(`Reaction ${emoji} toggled on element:`, element); 
-}
+// Load posts on page load
+window.onload = loadPosts;
 
-// Function to load posts from the database and display them
-async function loadPosts() {
-  const posts = await getPostsFromDatabase();
-  const postsContainer = document.getElementById('postsContainer');
-  // Clear existing posts before adding new ones
-  postsContainer.innerHTML = '';
-  posts.forEach(post => displayPost(post));
-}
-
-// Load posts from the database on page load
-window.onload = async function() {
-  await loadPosts(); // Call loadPosts to display initial posts
-
-  // Attach event listener to the Post button
-  const postButton = document.getElementById('postButton');
-  postButton.addEventListener('click', createPost);
-};
+// Attach event listener to the Post button
+document.getElementById('postButton').addEventListener('click', createPost);
