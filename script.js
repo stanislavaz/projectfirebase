@@ -1,37 +1,9 @@
-// Function to get the username for the current user
-async function getUserName() {
-  const userID = getUserID();
-  let usernames = await getUsernamesFromDatabase();
-  return usernames[userID] || null;
-}
-
-// Function to set the username for the current user
-async function setUserName(username) {
-  const userID = getUserID();
-  let usernames = await getUsernamesFromDatabase();
-  usernames[userID] = username;
-  await saveUsernamesToDatabase(usernames);
-}
-
-// Function to get a unique user ID (if not already present)
-async function getUserID() {
-  let userData = await getUserDataFromDatabase();
-  let userID = localStorage.getItem('userID');
-  if (!userID) {
-    userID = Date.now().toString(36) + Math.random().toString(36).substring(2, 15); // Generate a random ID
-    userData.userIDs[userID] = true; // Store the userID in the database
-    await saveUserDataToDatabase(userData.usernames, userData.userIDs);
-    localStorage.setItem('userID', userID);
-  }
-  return userID;
-}
-
 // Function to create a new post
 async function createPost() {
   const postContent = document.getElementById('postContent').value;
   const imageUpload = document.getElementById('imageUpload');
   const imageFile = imageUpload.files[0];
-  const userID = getUserID();
+  const userID = await getUserID();
   let username = await getUserName();
 
   if (postContent.trim() !== "" && username) { // Only proceed if username is set
@@ -52,7 +24,7 @@ async function createPost() {
         document.getElementById('postContent').value = "";
         imageUpload.value = '';
         // Refresh the display after saving
-        loadPosts(); 
+        loadPosts();
       };
       reader.readAsDataURL(imageFile);
     } else {
@@ -60,7 +32,7 @@ async function createPost() {
       displayPost(newPost);
       document.getElementById('postContent').value = "";
       // Refresh the display after saving
-      loadPosts(); 
+      loadPosts();
     }
   } else if (postContent.trim() !== "" && !username) {
     // Prompt for username if it's not set
@@ -75,12 +47,56 @@ async function createPost() {
 // Function to store a post in the database
 async function savePostToDatabase(post) {
   try {
-    const posts = await getPostsFromDatabase(); // Get posts from database
-    posts.push(post);
-    await savePostsToDatabase(posts); // Save updated posts to database
+    const response = await fetch('/posts', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ posts: [post] }) // Send post as an array
+    });
+    if (!response.ok) {
+      console.error('Error saving post to database:', response.status);
+    }
   } catch (error) {
     console.error('Error saving post to database:', error);
   }
+}
+
+// Function to get the username for the current user
+async function getUserName() {
+  const userID = await getUserID();
+  const response = await fetch('/userData');
+  const data = await response.json();
+  return data.usernames[userID] || null;
+}
+
+// Function to set the username for the current user
+async function setUserName(username) {
+  const userID = await getUserID();
+  const response = await fetch('/userData', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ usernames: { [userID]: username } }) // Send username as an object
+  });
+  if (!response.ok) {
+    console.error('Error saving username to database:', response.status);
+  }
+}
+
+// Function to get a unique user ID (if not already present)
+async function getUserID() {
+  const response = await fetch('/userData');
+  const data = await response.json();
+  let userID = localStorage.getItem('userID');
+  if (!userID) {
+    userID = Date.now().toString(36) + Math.random().toString(36).substring(2, 15); // Generate a random ID
+    data.userIDs[userID] = true; // Store the userID in the database
+    await saveUserDataToDatabase(data.usernames, data.userIDs);
+    localStorage.setItem('userID', userID);
+  }
+  return userID;
 }
 
 // Function to display a post 
@@ -194,4 +210,43 @@ function addComment(button) {
 // Function to delete a post
 async function deletePost(button) {
   const postToDelete = button.parentElement;
-  const posts = await
+  const posts = await getPostsFromDatabase();
+  const index = Array.from(document.getElementById('postsContainer').children).indexOf(postToDelete);
+
+  if (index !== -1) {
+    posts.splice(index, 1);
+    await savePostsToDatabase(posts);
+    postToDelete.remove();
+  }
+}
+
+// Function to delete a comment
+function deleteComment(button) {
+  const commentToDelete = button.parentElement;
+  commentToDelete.remove();
+}
+
+// Function to display a reaction (implementation example)
+function displayReaction(element, emoji) {
+  // You can implement your specific display logic here, 
+  // for example, adding the emoji to an element, or changing the button's style.
+  console.log(`Reaction ${emoji} toggled on element:`, element); 
+}
+
+// Function to load posts from the database and display them
+async function loadPosts() {
+  const posts = await getPostsFromDatabase();
+  const postsContainer = document.getElementById('postsContainer');
+  // Clear existing posts before adding new ones
+  postsContainer.innerHTML = '';
+  posts.forEach(post => displayPost(post));
+}
+
+// Load posts from the database on page load
+window.onload = async function() {
+  await loadPosts(); // Call loadPosts to display initial posts
+
+  // Attach event listener to the Post button
+  const postButton = document.getElementById('postButton');
+  postButton.addEventListener('click', createPost);
+};
