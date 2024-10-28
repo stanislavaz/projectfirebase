@@ -52,7 +52,7 @@ async function createPost() {
         document.getElementById('postContent').value = "";
         imageUpload.value = '';
         // Refresh the display after saving
-        loadPosts(); // Add this line
+        loadPosts(); 
       };
       reader.readAsDataURL(imageFile);
     } else {
@@ -60,7 +60,7 @@ async function createPost() {
       displayPost(newPost);
       document.getElementById('postContent').value = "";
       // Refresh the display after saving
-      loadPosts(); // Add this line
+      loadPosts(); 
     }
   } else if (postContent.trim() !== "" && !username) {
     // Prompt for username if it's not set
@@ -221,12 +221,4 @@ function displayReaction(element, emoji) {
 async function loadPosts() {
   const posts = await getPostsFromDatabase();
   const postsContainer = document.getElementById('postsContainer');
-  // Clear existing posts before adding new ones
-  postsContainer.innerHTML = '';
-  posts.forEach(post => displayPost(post));
-}
-
-// Load posts from the database on page load
-window.onload = async function() {
-  await loadPosts(); // Call loadPosts to display initial posts
-};
+  // Clear existing
