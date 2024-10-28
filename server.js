@@ -4,64 +4,33 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Read the initial database file
+// Initialize posts data from JSON file if it exists
 let posts = [];
-let usernames = {};
-let userIDs = {};
 try {
-  const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'posts.json')));
-  posts = data.posts || [];
-  usernames = data.usernames || {};
-  userIDs = data.userIDs || {};
+  const data = fs.readFileSync(path.join(__dirname, 'posts.json'), 'utf8');
+  posts = JSON.parse(data).posts || [];
 } catch (error) {
-  console.error('Error reading initial database file:', error);
+  console.error("Error reading posts.json:", error);
 }
 
-// Serve static files (HTML, CSS, JavaScript)
+// Serve static files (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json()); // For parsing JSON requests
 
-// Middleware to parse request bodies
-app.use(express.json());
-
-// API endpoint to get posts
+// Endpoint to fetch all posts
 app.get('/posts', (req, res) => {
   res.json({ posts });
 });
 
-// API endpoint to save posts
-app.put('/posts', (req, res) => {
-  posts = req.body.posts;
-  saveDatabase();
-  res.sendStatus(200);
+// Endpoint to create a new post
+app.post('/posts', (req, res) => {
+  const newPost = req.body; // Assuming new post is sent in the request body
+  posts.push(newPost); // Add the new post to the posts array
+  fs.writeFileSync(path.join(__dirname, 'posts.json'), JSON.stringify({ posts }), 'utf8');
+  res.status(201).json(newPost); // Send a response with the new post
 });
-
-// API endpoint to get user data
-app.get('/userData', (req, res) => {
-  res.json({ usernames, userIDs });
-});
-
-// API endpoint to save user data
-app.put('/userData', (req, res) => {
-  usernames = req.body.usernames;
-  userIDs = req.body.userIDs;
-  saveDatabase();
-  res.sendStatus(200);
-});
-
-// Function to save the database to a JSON file
-function saveDatabase() {
-  try {
-    fs.writeFileSync(
-      path.join(__dirname, 'posts.json'),
-      JSON.stringify({ posts, usernames, userIDs }),
-      'utf8'
-    );
-  } catch (error) {
-    console.error('Error saving database:', error);
-  }
-}
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });
