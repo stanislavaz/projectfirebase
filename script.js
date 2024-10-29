@@ -5,12 +5,13 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstati
 
 // Firebase configuration and initialization
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyBVh0DfMKE1IKTMadyTLO_c54Y6o5BCnTY",
+  authDomain: "liebe-f332d.firebaseapp.com",
+  projectId: "liebe-f332d",
+  storageBucket: "liebe-f332d.appspot.com",
+  messagingSenderId: "199124008155",
+  appId: "1:199124008155:web:04f7f5582811693fdda0fe",
+  measurementId: "G-TE1VF9N946"
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
