@@ -1,6 +1,6 @@
 // Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
 
 // Firebase configuration and initialization
@@ -33,7 +33,7 @@ async function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
-  const username = getOrCreateUsername(); // Get username from localStorage or prompt
+  const username = getOrCreateUsername(); // Get or prompt username from localStorage
   const userID = localStorage.getItem("userID") || generateUserID(); // Generate userID if not exists
 
   if (!postContent.trim()) {
@@ -170,7 +170,35 @@ function generateUserID() {
   return userID;
 }
 
-// Function to change userID
+// Function to change username and update posts
+async function changeUsername() {
+  const newUsername = prompt("Enter new username:");
+  if (!newUsername || newUsername.trim() === "") {
+    alert("Username cannot be empty.");
+    return;
+  }
+
+  const oldUsername = localStorage.getItem("username");
+  localStorage.setItem("username", newUsername);
+
+  const querySnapshot = await getDocs(collection(db, "posts"));
+  const batch = writeBatch(db);
+
+  querySnapshot.forEach((docSnapshot) => {
+    const post = docSnapshot.data();
+    if (post.author === oldUsername) {
+      const postRef = doc(db, "posts", docSnapshot.id);
+      batch.update(postRef, { author: newUsername });
+    }
+  });
+
+  await batch.commit(); // Commit all updates in a single batch operation
+
+  alert("Username updated successfully.");
+  loadPosts(); // Refresh posts to show updated usernames
+}
+
+// Function to change userID and update posts
 async function changeUserID() {
   const newUserID = prompt("Enter new userID:");
   if (!newUserID || newUserID.trim() === "") {
@@ -182,7 +210,7 @@ async function changeUserID() {
   localStorage.setItem("userID", newUserID);
 
   const querySnapshot = await getDocs(collection(db, "posts"));
-  const batch = db.batch();
+  const batch = writeBatch(db);
 
   querySnapshot.forEach((docSnapshot) => {
     const post = docSnapshot.data();
@@ -203,4 +231,5 @@ window.onload = loadPosts;
 
 // Attach event listeners
 document.getElementById("postButton").addEventListener("click", createPost);
+document.getElementById("changeUsernameButton").addEventListener("click", changeUsername);
 document.getElementById("changeUserIDButton").addEventListener("click", changeUserID);
