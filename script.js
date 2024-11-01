@@ -81,21 +81,15 @@ async function savePostToDatabase(post) {
 }
 
 // Function to load posts from Firestore
+// Function to load posts from Firestore
 async function loadPosts() {
   const querySnapshot = await getDocs(collection(db, "posts"));
   const postsContainer = document.getElementById("postsContainer");
   postsContainer.innerHTML = ""; // Clear existing posts
 
-  const posts = [];
   querySnapshot.forEach((doc) => {
-    posts.push({ id: doc.id, ...doc.data() });
-  });
-
-  // Sort posts by timestamp in descending order
-  posts.sort((a, b) => b.timestamp - a.timestamp);
-
-  posts.forEach((post) => {
-    displayPost(post);
+    const post = { id: doc.id, ...doc.data() };
+    displayPost(post); // Call display function for each post
   });
 }
 
