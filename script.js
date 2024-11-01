@@ -93,6 +93,7 @@ async function loadPosts() {
 }
 
 // Function to display a post in the DOM
+// Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
@@ -114,21 +115,25 @@ function displayPost(post) {
     formattedDate = "Datum nicht verfügbar";
   }
 
+  // Only show the author's name and post content without userID
   let postHTML = `
     <h3>${post.author}</h3>
     <p class="timestamp">${formattedDate}</p>
     <p>${post.content}</p>
   `;
 
+  // Add image if available
   if (post.imageUrl) {
     postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto; margin-top: 10px;">`;
   }
 
+  // Add delete button
   postHTML += `<button class="button deleteButton" data-id="${post.id}">Löschen</button>`;
 
   postElement.innerHTML = postHTML;
   document.getElementById("postsContainer").appendChild(postElement);
 
+  // Set up delete button event
   const deleteButton = postElement.querySelector(".deleteButton");
   deleteButton.addEventListener("click", () => {
     const confirmDelete = confirm("Do you really want to delete the post?");
@@ -137,6 +142,7 @@ function displayPost(post) {
     }
   });
 }
+
 
 // Function to delete a post from Firestore
 async function deletePost(postId) {
