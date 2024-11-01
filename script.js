@@ -178,4 +178,66 @@ async function changeUsername() {
     return;
   }
 
-  const oldUsername = localStorage.get
+  const oldUsername = localStorage.getItem("username");
+  localStorage.setItem("username", newUsername);
+
+  const querySnapshot = await getDocs(collection(db, "posts"));
+  const batch = writeBatch(db);
+
+  querySnapshot.forEach((docSnapshot) => {
+    const post = docSnapshot.data();
+    if (post.author === oldUsername) {
+      const postRef = doc(db, "posts", docSnapshot.id);
+      batch.update(postRef, { author: newUsername });
+    }
+  });
+
+  await batch.commit(); // Commit all updates in a single batch operation
+
+  alert("Username updated successfully.");
+  loadPosts(); // Refresh posts to show updated usernames
+}
+
+// Function to change userID and update posts
+async function changeUserID() {
+  const newUserID = prompt("Enter new userID:");
+  if (!newUserID || newUserID.trim() === "") {
+    alert("User ID cannot be empty.");
+    return;
+  }
+
+  const oldUserID = localStorage.getItem("userID");
+  
+  // Only proceed if the new userID is different from the old userID
+  if (oldUserID === newUserID) {
+    alert("New user ID must be different from the current user ID.");
+    return;
+  }
+
+  localStorage.setItem("userID", newUserID); // Update localStorage with the new userID
+
+  const querySnapshot = await getDocs(collection(db, "posts"));
+  const batch = writeBatch(db); // Initialize batch for Firestore updates
+
+  // Update all posts with the old userID
+  querySnapshot.forEach((docSnapshot) => {
+    const post = docSnapshot.data();
+    if (post.userID === oldUserID) {
+      const postRef = doc(db, "posts", docSnapshot.id);
+      batch.update(postRef, { userID: newUserID }); // Update userID for posts
+    }
+  });
+
+  await batch.commit(); // Commit all updates in a single batch operation
+
+  alert("User ID updated successfully.");
+  loadPosts(); // Refresh posts to show updated IDs
+}
+
+// Load posts on page load
+window.onload = loadPosts;
+
+// Attach event listeners
+document.getElementById("postButton").addEventListener("click", createPost);
+document.getElementById("changeUsernameButton").addEventListener("click", changeUsername);
+document
