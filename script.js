@@ -216,7 +216,7 @@ async function changeUserID() {
     const post = docSnapshot.data();
     if (post.userID === oldUserID) {
       const postRef = doc(db, "posts", docSnapshot.id);
-      batch.update(postRef, { userID: newUserID });
+      batch.update(postRef, { userID: newUserID }); // Update the userID for existing posts
     }
   });
 
