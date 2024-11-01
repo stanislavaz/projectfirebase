@@ -1,6 +1,6 @@
 // Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
 
 // Firebase configuration and initialization
@@ -105,10 +105,8 @@ function displayPost(post) {
 
   let formattedDate;
   if (post.timestamp && post.timestamp.toDate) {
-    // Convert Firestore timestamp to Date object
+    // Convert Firestore timestamp to JavaScript Date and format as "1. November 2024 um 09:38:42"
     const date = post.timestamp.toDate();
-    
-    // Format the date in German locale to match Firebase style
     formattedDate = date.toLocaleString('de-DE', {
       day: 'numeric',
       month: 'long',
@@ -116,9 +114,9 @@ function displayPost(post) {
       hour: 'numeric',
       minute: 'numeric',
       second: 'numeric',
-      timeZone: 'Europe/Berlin', // Ensure it uses the correct timezone
+      timeZoneName: 'short',
       hour12: false
-    }).replace(" GMT", " um"); // Replace "GMT" with "um" for closer match to Firebase's style
+    }).replace("GMT", "um"); // Replace "GMT" with "um" to match Firebase style
   } else {
     formattedDate = "Datum nicht verfügbar";
   }
@@ -152,8 +150,6 @@ function displayPost(post) {
   }
 }
 
-
-
 // Function to delete a post from Firestore
 async function deletePost(postId) {
   try {
@@ -174,8 +170,32 @@ function generateUserID() {
   return userID;
 }
 
+// Function to change userID
+async function changeUserID() {
+  const newUserID = prompt("Enter new userID:");
+  if (!newUserID || newUserID.trim() === "") {
+    alert("User ID cannot be empty.");
+    return;
+  }
+
+  const oldUserID = localStorage.getItem("userID");
+  localStorage.setItem("userID", newUserID);
+
+  const querySnapshot = await getDocs(collection(db, "posts"));
+  querySnapshot.forEach(async (doc) => {
+    const post = doc.data();
+    if (post.userID === oldUserID) {
+      await updateDoc(doc.ref, { userID: newUserID });
+    }
+  });
+
+  alert("User ID updated successfully.");
+  loadPosts(); // Refresh posts to show updated IDs
+}
+
 // Load posts on page load
 window.onload = loadPosts;
 
-// Attach event listener to the Post button
+// Attach event listeners
 document.getElementById("postButton").addEventListener("click", createPost);
+document.getElementById("changeUserIDButton").addEventListener("click", changeUserID);
