@@ -149,6 +149,7 @@ async function deletePost(postId) {
   }
 }
 
+
 // Event listener for the post button
 document.getElementById("postButton").addEventListener("click", createPost);
 
