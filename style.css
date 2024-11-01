@@ -51,10 +51,16 @@ main {
 }
 
 .deleteButton {
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
+  background-color: #ff4d4d; /* Light red background */
+  color: white; /* White text */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px 15px; /* Padding */
+  cursor: pointer; /* Pointer cursor on hover */
+  margin-top: 10px; /* Space above the button */
 }
+
+.deleteButton:hover {
+  background-color: #ff1a1a; /* Darker red on hover */
+}
+
