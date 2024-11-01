@@ -105,8 +105,12 @@ function displayPost(post) {
 
   let formattedDate;
   if (post.timestamp && post.timestamp.toDate) {
-    // Convert Firestore timestamp to JavaScript Date and format it
-    formattedDate = post.timestamp.toDate().toLocaleString();
+    // Convert Firestore timestamp to JavaScript Date and format it as dd/mm/yyyy, hh:mm:ss
+    const date = post.timestamp.toDate();
+    formattedDate = `${date.getDate().toString().padStart(2, '0')}/${
+      (date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}, ${
+      date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${
+      date.getSeconds().toString().padStart(2, '0')}`;
   } else {
     formattedDate = "Date not available";
   }
@@ -121,7 +125,6 @@ function displayPost(post) {
     postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto; margin-top: 10px;">`;
   }
 
-  // Only show delete button for the post's author
   const currentUserID = localStorage.getItem("userID");
   if (currentUserID === post.userID) {
     postHTML += `<button class="button deleteButton" data-id="${post.id}">Löschen</button>`;
@@ -130,7 +133,6 @@ function displayPost(post) {
   postElement.innerHTML = postHTML;
   document.getElementById("postsContainer").appendChild(postElement);
 
-  // Attach event listener for delete button with confirmation pop-up
   const deleteButton = postElement.querySelector(".deleteButton");
   if (deleteButton) {
     deleteButton.addEventListener("click", () => {
