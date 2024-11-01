@@ -41,7 +41,7 @@ async function createPost() {
 
   const newPost = {
     content: postContent,
-    timestamp: new Date().toISOString(), // Store as ISO string for easier sorting
+    timestamp: new Date().toISOString(), // Use ISO format for consistent sorting
     author: username,
   };
 
@@ -82,15 +82,18 @@ async function loadPosts() {
   const postsContainer = document.getElementById("postsContainer");
   postsContainer.innerHTML = ""; // Clear existing posts
 
-  // Fetch and sort posts by timestamp in descending order (newest first)
-  const sortedPosts = [];
+  // Fetch posts and store them in an array to sort by timestamp
+  const postsArray = [];
   querySnapshot.forEach((doc) => {
-    sortedPosts.push(doc.data());
+    const postData = doc.data();
+    postsArray.push({ ...postData, id: doc.id });
   });
-  sortedPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  // Sort posts by timestamp in descending order (newest first)
+  postsArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   // Display sorted posts
-  sortedPosts.forEach((post) => displayPost(post));
+  postsArray.forEach((post) => displayPost(post));
 }
 
 // Function to display a post in the DOM
@@ -105,12 +108,13 @@ function displayPost(post) {
   `;
 
   if (post.imageUrl) {
-    postHTML += `<img src="${post.imageUrl}" alt="Post Image">`;
+    postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto; margin-top: 10px;">`;
   }
 
   postElement.innerHTML = postHTML;
-  const postsContainer = document.getElementById("postsContainer");
-  postsContainer.prepend(postElement); // Insert each post at the top
+
+  // Add each new post at the top of the container
+  document.getElementById("postsContainer").prepend(postElement);
 }
 
 // Load posts on page load
