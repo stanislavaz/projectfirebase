@@ -94,6 +94,7 @@ async function loadPosts() {
 }
 
 // Function to display a post in the DOM
+// Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
@@ -110,13 +111,13 @@ function displayPost(post) {
       second: 'numeric',
       timeZoneName: 'short',
       hour12: false
-    }).replace("GMT", "um"); 
+    }).replace("GMT", "um");
   } else {
     formattedDate = "Datum nicht verfügbar";
   }
 
   let postHTML = `
-    <h3>${post.author}</h3>
+    <h3>${post.author} (UserID: ${post.userID})</h3>
     <p class="timestamp">${formattedDate}</p>
     <p>${post.content}</p>
   `;
