@@ -170,8 +170,8 @@ function generateUserID() {
 }
 
 // Function to change userID and update posts
+// Function to change userID and update posts
 async function changeUserID() {
-  console.log("Change User ID button clicked"); // Debugging message
   const newUserID = prompt("Enter new userID:");
   
   // Validate the input
@@ -182,13 +182,16 @@ async function changeUserID() {
 
   const oldUserID = localStorage.getItem("userID");
   
+  // Ensure the new userID is different
   if (oldUserID === newUserID) {
     alert("New user ID must be different from the current user ID.");
     return;
   }
 
-  localStorage.setItem("userID", newUserID); // Update localStorage with the new userID
+  // Update localStorage with the new userID
+  localStorage.setItem("userID", newUserID); 
 
+  // Fetch all posts to update the userID in Firestore
   const querySnapshot = await getDocs(collection(db, "posts"));
   const batch = writeBatch(db); // Initialize batch for Firestore updates
 
@@ -197,14 +200,16 @@ async function changeUserID() {
     const post = docSnapshot.data();
     if (post.userID === oldUserID) {
       const postRef = doc(db, "posts", docSnapshot.id);
-      batch.update(postRef, { userID: newUserID });
+      batch.update(postRef, { userID: newUserID }); // Update userID for posts
     }
   });
 
-  await batch.commit(); // Commit the batch update
-  alert("User ID changed successfully! All posts updated.");
-  loadPosts(); // Reload posts to reflect changes
+  await batch.commit(); // Commit all updates in a single batch operation
+
+  alert("User ID updated successfully! All posts updated.");
+  loadPosts(); // Refresh posts to show updated user IDs
 }
+
 
 // Event listener for the Change User ID button
 document.getElementById("changeUserIDButton").addEventListener("click", changeUserID);
