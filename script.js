@@ -104,7 +104,7 @@ function displayPost(post) {
 
   let formattedDate;
   if (post.timestamp) {
-    formattedDate = new Date(post.timestamp.seconds * 1000).toLocaleString();
+    formattedDate = new Date(post.timestamp).toLocaleString(); // Adjusted date formatting
   } else {
     formattedDate = "Date not available";
   }
