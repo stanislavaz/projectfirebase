@@ -67,11 +67,6 @@ main {
   color: #000; /* Darker text on hover */
 }
 
-/* Remove red styling from the delete button */
-.deleteButton {
-  /* Inherits all other button styles, no unique styles for delete */
-}
-
 /* Additional styling for post images */
 img {
   max-width: 100%; /* Ensure images are responsive */
