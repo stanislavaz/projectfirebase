@@ -77,12 +77,13 @@ async function savePostToDatabase(post) {
 }
 
 // Function to load posts from Firestore and display them from newest to oldest
+// Function to load posts from Firestore and display them from newest to oldest
 async function loadPosts() {
   const querySnapshot = await getDocs(collection(db, "posts"));
   const postsContainer = document.getElementById("postsContainer");
   postsContainer.innerHTML = ""; // Clear existing posts
 
-  // Sort posts by timestamp in descending order (newest first)
+  // Retrieve posts and sort by timestamp in descending order
   const posts = [];
   querySnapshot.forEach((doc) => {
     posts.push(doc.data());
@@ -90,11 +91,11 @@ async function loadPosts() {
   posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   // Display each post
-  posts.forEach((post) => displayPost(post));
+  posts.forEach((post) => displayPost(post, postsContainer));
 }
 
-// Function to display a post in the DOM
-function displayPost(post) {
+// Function to display a post in the DOM at the top of the container
+function displayPost(post, container) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
 
@@ -123,7 +124,9 @@ function displayPost(post) {
   }
 
   postElement.innerHTML = postHTML;
-  document.getElementById("postsContainer").appendChild(postElement);
+
+  // Append each new post to the top of the container
+  container.insertBefore(postElement, container.firstChild);
 }
 
 // Load posts on page load
