@@ -182,12 +182,17 @@ async function changeUserID() {
   localStorage.setItem("userID", newUserID);
 
   const querySnapshot = await getDocs(collection(db, "posts"));
-  querySnapshot.forEach(async (doc) => {
-    const post = doc.data();
+  const batch = db.batch();
+
+  querySnapshot.forEach((docSnapshot) => {
+    const post = docSnapshot.data();
     if (post.userID === oldUserID) {
-      await updateDoc(doc.ref, { userID: newUserID });
+      const postRef = doc(db, "posts", docSnapshot.id);
+      batch.update(postRef, { userID: newUserID });
     }
   });
+
+  await batch.commit(); // Commit all updates in a single batch operation
 
   alert("User ID updated successfully.");
   loadPosts(); // Refresh posts to show updated IDs
