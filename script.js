@@ -192,4 +192,22 @@ async function changeUserID() {
   // Update all posts with the old userID
   querySnapshot.forEach((docSnapshot) => {
     const post = docSnapshot.data();
-    if (post.userID === oldUserID
+    if (post.userID === oldUserID) {
+      const postRef = doc(db, "posts", docSnapshot.id);
+      batch.update(postRef, { userID: newUserID });
+    }
+  });
+
+  await batch.commit(); // Commit the batch update
+  alert("User ID changed successfully! All posts updated.");
+  loadPosts(); // Reload posts to reflect changes
+}
+
+// Event listener for the Change User ID button
+document.getElementById("changeUserIDButton").addEventListener("click", changeUserID);
+
+// Event listener for the Post button
+document.getElementById("postButton").addEventListener("click", createPost);
+
+// Load posts when the page is loaded
+window.onload = loadPosts;
