@@ -105,8 +105,10 @@ function displayPost(post) {
 
   let formattedDate;
   if (post.timestamp && post.timestamp.toDate) {
-    // Convert Firestore timestamp to JavaScript Date and format as "1. November 2024 um 09:38:42"
+    // Convert Firestore timestamp to Date object
     const date = post.timestamp.toDate();
+    
+    // Format the date in German locale to match Firebase style
     formattedDate = date.toLocaleString('de-DE', {
       day: 'numeric',
       month: 'long',
@@ -114,9 +116,9 @@ function displayPost(post) {
       hour: 'numeric',
       minute: 'numeric',
       second: 'numeric',
-      timeZoneName: 'short',
+      timeZone: 'Europe/Berlin', // Ensure it uses the correct timezone
       hour12: false
-    }).replace("GMT", "um"); // Replace "GMT" with "um" to match Firebase style
+    }).replace(" GMT", " um"); // Replace "GMT" with "um" for closer match to Firebase's style
   } else {
     formattedDate = "Datum nicht verfügbar";
   }
@@ -149,6 +151,7 @@ function displayPost(post) {
     });
   }
 }
+
 
 
 // Function to delete a post from Firestore
