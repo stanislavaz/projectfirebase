@@ -171,6 +171,7 @@ function generateUserID() {
 
 // Function to change userID and update posts
 // Function to change userID and update posts
+// Function to change userID and update posts
 async function changeUserID() {
   const newUserID = prompt("Enter new userID:");
   
@@ -204,11 +205,13 @@ async function changeUserID() {
     }
   });
 
-  await batch.commit(); // Commit all updates in a single batch operation
+  // Commit the batch update
+  await batch.commit(); 
 
   alert("User ID updated successfully! All posts updated.");
   loadPosts(); // Refresh posts to show updated user IDs
 }
+
 
 
 // Event listener for the Change User ID button
