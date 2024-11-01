@@ -29,12 +29,13 @@ function getOrCreateUsername() {
 }
 
 // Function to create a new post
+// Function to create a new post
 async function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
   const username = getOrCreateUsername(); // Get or prompt username from localStorage
-  const userID = localStorage.getItem("userID") || generateUserID(); // Generate userID if not exists
+  const userID = localStorage.getItem("userID"); // Get the updated userID
 
   if (!postContent.trim()) {
     alert("Post content cannot be empty.");
@@ -45,7 +46,7 @@ async function createPost() {
     content: postContent,
     timestamp: new Date(),
     author: username,
-    userID: userID,
+    userID: userID, // Use the updated userID
   };
 
   // Handle image upload if a file is provided
