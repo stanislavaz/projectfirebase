@@ -32,28 +32,29 @@ async function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
-  const username = getOrCreateUsername();
+  const username = getOrCreateUsername(); // Get username from localStorage or prompt
 
   if (!postContent.trim()) {
     alert("Post content cannot be empty.");
     return;
   }
 
-  // Save date as a timestamp for accurate sorting and parsing
   const newPost = {
     content: postContent,
     timestamp: new Date().toISOString(),
     author: username,
   };
 
+  // Handle image upload if a file is provided
   if (imageFile) {
-    const imageUrl = await uploadImage(imageFile);
-    newPost.imageUrl = imageUrl;
+    const imageUrl = await uploadImage(imageFile); // Upload image and get URL
+    newPost.imageUrl = imageUrl; // Add the image URL to the new post
   }
 
-  await savePostToDatabase(newPost);
-  loadPosts();
+  await savePostToDatabase(newPost); // Save post to Firestore
+  loadPosts(); // Reload posts to show the new one
 
+  // Clear form after posting
   document.getElementById("postContent").value = "";
   document.getElementById("imageUpload").value = "";
 }
@@ -68,28 +69,28 @@ async function uploadImage(file) {
 // Function to save post to Firestore
 async function savePostToDatabase(post) {
   try {
-    await addDoc(collection(db, "posts"), post);
+    await addDoc(collection(db, "posts"), post); // Automatically generates a document ID
     console.log("Post added successfully");
   } catch (error) {
     console.error("Error adding post:", error);
   }
 }
 
-// Function to load posts from Firestore
+// Function to load posts from Firestore and display them from newest to oldest
 async function loadPosts() {
   const querySnapshot = await getDocs(collection(db, "posts"));
   const postsContainer = document.getElementById("postsContainer");
-  postsContainer.innerHTML = "";
+  postsContainer.innerHTML = ""; // Clear existing posts
 
-  const postsArray = [];
+  // Sort posts by timestamp in descending order (newest first)
+  const posts = [];
   querySnapshot.forEach((doc) => {
-    const postData = doc.data();
-    postsArray.push({ ...postData, id: doc.id });
+    posts.push(doc.data());
   });
+  posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-  postsArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-  postsArray.forEach((post) => displayPost(post));
+  // Display each post
+  posts.forEach((post) => displayPost(post));
 }
 
 // Function to display a post in the DOM
@@ -97,10 +98,14 @@ function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
 
-  // Convert ISO string to readable format and handle parsing errors
-  const formattedDate = post.timestamp
-    ? new Date(post.timestamp).toLocaleString()
-    : "Date not available";
+  // Safely parse and format the timestamp or provide a fallback message
+  let formattedDate;
+  if (post.timestamp) {
+    const date = new Date(post.timestamp);
+    formattedDate = isNaN(date.getTime()) ? "Date not available" : date.toLocaleString();
+  } else {
+    formattedDate = "Date not available";
+  }
 
   let postHTML = `
     <h3>${post.author}</h3>
@@ -113,8 +118,7 @@ function displayPost(post) {
   }
 
   postElement.innerHTML = postHTML;
-
-  document.getElementById("postsContainer").prepend(postElement);
+  document.getElementById("postsContainer").appendChild(postElement);
 }
 
 // Load posts on page load
