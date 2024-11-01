@@ -122,7 +122,7 @@ function displayPost(post) {
   // Only show delete button for the post's author
   const currentUserID = localStorage.getItem("userID");
   if (currentUserID === post.userID) {
-    postHTML += `<button class="deleteButton" onclick="deletePost('${post.id}')">Delete</button>`;
+    postHTML += `<button class="button deleteButton" onclick="deletePost('${post.id}')">Löschen</button>`;
   }
 
   postElement.innerHTML = postHTML;
@@ -134,11 +134,11 @@ async function deletePost(postId) {
   try {
     const postRef = doc(db, "posts", postId);
     await deleteDoc(postRef);
-    alert("Post deleted successfully.");
+    alert("Post erfolgreich gelöscht.");
     loadPosts();
   } catch (error) {
     console.error("Error deleting post:", error);
-    alert("An error occurred while deleting the post.");
+    alert("Ein Fehler ist beim Löschen des Beitrags aufgetreten.");
   }
 }
 
