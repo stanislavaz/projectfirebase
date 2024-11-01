@@ -41,7 +41,7 @@ async function createPost() {
 
   const newPost = {
     content: postContent,
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString(), // Save timestamp as an ISO string in UTC
     author: username,
   };
 
@@ -101,8 +101,13 @@ function displayPost(post) {
   // Safely parse and format the timestamp or provide a fallback message
   let formattedDate;
   if (post.timestamp) {
-    const date = new Date(post.timestamp);
-    formattedDate = isNaN(date.getTime()) ? "Date not available" : date.toLocaleString();
+    try {
+      const date = new Date(post.timestamp);
+      formattedDate = date.toLocaleString(); // Localized date and time
+    } catch (error) {
+      console.error("Error parsing date:", error);
+      formattedDate = "Date not available";
+    }
   } else {
     formattedDate = "Date not available";
   }
