@@ -32,7 +32,7 @@ main {
 }
 
 #newPostForm {
-  margin-bottom: 20px;
+  margin-bottom: 20px; /* Added bottom margin to separate from posts */
 }
 
 #postContent {
@@ -50,17 +50,40 @@ main {
   border-radius: 5px;
 }
 
-.deleteButton {
-  background-color: #ff4d4d; /* Light red background */
-  color: white; /* White text */
-  border: none; /* Remove border */
+/* Button styles */
+.button, .deleteButton {
+  background-color: white; /* White background for all buttons */
+  color: #333; /* Dark text for contrast */
+  border: 1px solid #ccc; /* Light gray border */
   border-radius: 5px; /* Rounded corners */
   padding: 10px 15px; /* Padding */
   cursor: pointer; /* Pointer cursor on hover */
   margin-top: 10px; /* Space above the button */
+  transition: background-color 0.3s, color 0.3s; /* Transition for hover effects */
+}
+
+.button:hover, .deleteButton:hover {
+  background-color: #f0f0f0; /* Light gray on hover */
+  color: #000; /* Darker text on hover */
+}
+
+.deleteButton {
+  border-color: #ff4d4d; /* Red border for delete button */
 }
 
 .deleteButton:hover {
-  background-color: #ff1a1a; /* Darker red on hover */
+  background-color: #ffcccc; /* Light red background on hover */
 }
 
+/* Additional styling for post images */
+img {
+  max-width: 100%; /* Ensure images are responsive */
+  height: auto; /* Maintain aspect ratio */
+  margin-top: 10px; /* Space above images */
+}
+
+/* Add some basic styling for the timestamp */
+.timestamp {
+  font-size: 0.9em; /* Slightly smaller font for timestamps */
+  color: #888; /* Gray color for timestamps */
+}
