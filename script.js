@@ -41,7 +41,7 @@ async function createPost() {
 
   const newPost = {
     content: postContent,
-    timestamp: new Date().toLocaleString(),
+    timestamp: new Date().toISOString(), // Store as ISO string for easier sorting
     author: username,
   };
 
@@ -82,9 +82,15 @@ async function loadPosts() {
   const postsContainer = document.getElementById("postsContainer");
   postsContainer.innerHTML = ""; // Clear existing posts
 
+  // Fetch and sort posts by timestamp in descending order (newest first)
+  const sortedPosts = [];
   querySnapshot.forEach((doc) => {
-    displayPost(doc.data());
+    sortedPosts.push(doc.data());
   });
+  sortedPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  // Display sorted posts
+  sortedPosts.forEach((post) => displayPost(post));
 }
 
 // Function to display a post in the DOM
@@ -94,7 +100,7 @@ function displayPost(post) {
 
   let postHTML = `
     <h3>${post.author}</h3>
-    <p class="timestamp">${post.timestamp}</p>
+    <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
     <p>${post.content}</p>
   `;
 
@@ -103,7 +109,8 @@ function displayPost(post) {
   }
 
   postElement.innerHTML = postHTML;
-  document.getElementById("postsContainer").appendChild(postElement);
+  const postsContainer = document.getElementById("postsContainer");
+  postsContainer.prepend(postElement); // Insert each post at the top
 }
 
 // Load posts on page load
