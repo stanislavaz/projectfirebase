@@ -165,6 +165,7 @@ function generateUserID() {
 }
 
 // Function to change userID and update posts
+// Function to change userID and update posts
 async function changeUserID() {
   const newUserID = prompt("Enter new userID:");
   
@@ -180,23 +181,31 @@ async function changeUserID() {
     return;
   }
 
-  localStorage.setItem("userID", newUserID);
+  // Update localStorage with the new userID
+  localStorage.setItem("userID", newUserID); 
 
-  const querySnapshot = await getDocs(collection(db, "posts"));
-  const batch = writeBatch(db);
+  try {
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    const batch = writeBatch(db);
 
-  querySnapshot.forEach((docSnapshot) => {
-    const post = docSnapshot.data();
-    if (post.userID === oldUserID) {
-      const postRef = doc(db, "posts", docSnapshot.id);
-      batch.update(postRef, { userID: newUserID });
-    }
-  });
+    querySnapshot.forEach((docSnapshot) => {
+      const post = docSnapshot.data();
+      if (post.userID === oldUserID) {
+        const postRef = doc(db, "posts", docSnapshot.id);
+        batch.update(postRef, { userID: newUserID });
+        console.log(`Updating post ${docSnapshot.id} to new userID ${newUserID}`);
+      }
+    });
 
-  await batch.commit();
-  alert("User ID updated successfully! All posts updated.");
-  loadPosts();
+    await batch.commit();
+    alert("User ID updated successfully! All posts updated.");
+    loadPosts(); // Refresh posts to show updated user IDs
+  } catch (error) {
+    console.error("Error updating posts:", error);
+    alert("An error occurred while updating posts.");
+  }
 }
+
 
 // Event listener for the Change User ID button
 document.getElementById("changeUserIDButton").addEventListener("click", changeUserID);
