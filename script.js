@@ -13,6 +13,7 @@ const firebaseConfig = {
   appId: "1:199124008155:web:04f7f5582811693fdda0fe",
   measurementId: "G-TE1VF9N946"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -104,9 +105,9 @@ function displayPost(post) {
 
   let formattedDate;
   if (post.timestamp) {
-    formattedDate = new Date(post.timestamp).toLocaleDateString('de-DE'); // Format date to day/month/year
+    formattedDate = new Date(post.timestamp).toLocaleString(); // Adjusted date formatting
   } else {
-    formattedDate = "Datum nicht verfügbar"; // "Date not available" in German
+    formattedDate = "Date not available";
   }
 
   let postHTML = `
@@ -122,22 +123,26 @@ function displayPost(post) {
   // Only show delete button for the post's author
   const currentUserID = localStorage.getItem("userID");
   if (currentUserID === post.userID) {
-    postHTML += `<button class="deleteButton" onclick="deletePost('${post.id}')">Löschen</button>`;
+    postHTML += `<button class="button deleteButton" data-id="${post.id}">Löschen</button>`;
   }
 
   postElement.innerHTML = postHTML;
   document.getElementById("postsContainer").appendChild(postElement);
+
+  // Attach event listener for delete button with confirmation pop-up
+  const deleteButton = postElement.querySelector(".deleteButton");
+  if (deleteButton) {
+    deleteButton.addEventListener("click", () => {
+      const confirmDelete = confirm("Do you really want to delete the post?");
+      if (confirmDelete) {
+        deletePost(post.id);
+      }
+    });
+  }
 }
 
-// Function to delete a post
 // Function to delete a post from Firestore
 async function deletePost(postId) {
-  // Confirmation pop-up
-  const confirmDelete = confirm("Do you really want to delete the post?");
-  if (!confirmDelete) {
-    return; // Exit if the user does not confirm
-  }
-
   try {
     const postRef = doc(db, "posts", postId);
     await deleteDoc(postRef);
@@ -149,9 +154,15 @@ async function deletePost(postId) {
   }
 }
 
+// Function to generate a unique user ID
+function generateUserID() {
+  const userID = 'user_' + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem("userID", userID);
+  return userID;
+}
 
-// Event listener for the post button
+// Load posts on page load
+window.onload = loadPosts;
+
+// Attach event listener to the Post button
 document.getElementById("postButton").addEventListener("click", createPost);
-
-// Load posts when the page is loaded
-loadPosts();
