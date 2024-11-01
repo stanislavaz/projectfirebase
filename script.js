@@ -33,8 +33,8 @@ async function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
-  const username = getOrCreateUsername(); // Get or prompt username from localStorage
-  const userID = localStorage.getItem("userID") || generateUserID(); // Generate userID if not exists
+  const username = getOrCreateUsername();
+  const userID = localStorage.getItem("userID") || generateUserID();
 
   if (!postContent.trim()) {
     alert("Post content cannot be empty.");
@@ -48,16 +48,14 @@ async function createPost() {
     userID: userID,
   };
 
-  // Handle image upload if a file is provided
   if (imageFile) {
-    const imageUrl = await uploadImage(imageFile); // Upload image and get URL
-    newPost.imageUrl = imageUrl; // Add the image URL to the new post
+    const imageUrl = await uploadImage(imageFile);
+    newPost.imageUrl = imageUrl;
   }
 
-  await savePostToDatabase(newPost); // Save post to Firestore
-  loadPosts(); // Reload posts to show the new one
+  await savePostToDatabase(newPost);
+  loadPosts();
 
-  // Clear form after posting
   document.getElementById("postContent").value = "";
   document.getElementById("imageUpload").value = "";
 }
@@ -72,7 +70,7 @@ async function uploadImage(file) {
 // Function to save post to Firestore
 async function savePostToDatabase(post) {
   try {
-    await addDoc(collection(db, "posts"), post); // Automatically generates a document ID
+    await addDoc(collection(db, "posts"), post);
     console.log("Post added successfully");
   } catch (error) {
     console.error("Error adding post:", error);
@@ -83,14 +81,13 @@ async function savePostToDatabase(post) {
 async function loadPosts() {
   const querySnapshot = await getDocs(collection(db, "posts"));
   const postsContainer = document.getElementById("postsContainer");
-  postsContainer.innerHTML = ""; // Clear existing posts
+  postsContainer.innerHTML = "";
 
   const posts = [];
   querySnapshot.forEach((doc) => {
     posts.push({ id: doc.id, ...doc.data() });
   });
 
-  // Sort posts by timestamp in descending order
   posts.sort((a, b) => b.timestamp - a.timestamp);
 
   posts.forEach((post) => {
@@ -105,7 +102,6 @@ function displayPost(post) {
 
   let formattedDate;
   if (post.timestamp && post.timestamp.toDate) {
-    // Convert Firestore timestamp to JavaScript Date and format as "1. November 2024 um 09:38:42"
     const date = post.timestamp.toDate();
     formattedDate = date.toLocaleString('de-DE', {
       day: 'numeric',
@@ -114,9 +110,8 @@ function displayPost(post) {
       hour: 'numeric',
       minute: 'numeric',
       second: 'numeric',
-      timeZoneName: 'short',
       hour12: false
-    }).replace("GMT", "um"); // Replace "GMT" with "um" to match Firebase style
+    }).replace("GMT", "um");
   } else {
     formattedDate = "Datum nicht verfügbar";
   }
@@ -128,7 +123,7 @@ function displayPost(post) {
   `;
 
   if (post.imageUrl) {
-    postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto; margin-top: 10px;">`;
+    postHTML += `<img src="${post.imageUrl}" alt="Post Image">`;
   }
 
   const currentUserID = localStorage.getItem("userID");
@@ -156,7 +151,7 @@ async function deletePost(postId) {
     const postRef = doc(db, "posts", postId);
     await deleteDoc(postRef);
     alert("Post erfolgreich gelöscht.");
-    loadPosts(); // Reload posts after deletion
+    loadPosts();
   } catch (error) {
     console.error("Error deleting post:", error);
     alert("Ein Fehler ist beim Löschen des Beitrags aufgetreten.");
@@ -192,10 +187,10 @@ async function changeUsername() {
     }
   });
 
-  await batch.commit(); // Commit all updates in a single batch operation
+  await batch.commit();
 
   alert("Username updated successfully.");
-  loadPosts(); // Refresh posts to show updated usernames
+  loadPosts();
 }
 
 // Function to change userID and update posts
@@ -207,31 +202,29 @@ async function changeUserID() {
   }
 
   const oldUserID = localStorage.getItem("userID");
-  
-  // Only proceed if the new userID is different from the old userID
+
   if (oldUserID === newUserID) {
     alert("New user ID must be different from the current user ID.");
     return;
   }
 
-  localStorage.setItem("userID", newUserID); // Update localStorage with the new userID
+  localStorage.setItem("userID", newUserID);
 
   const querySnapshot = await getDocs(collection(db, "posts"));
-  const batch = writeBatch(db); // Initialize batch for Firestore updates
+  const batch = writeBatch(db);
 
-  // Update all posts with the old userID
   querySnapshot.forEach((docSnapshot) => {
     const post = docSnapshot.data();
     if (post.userID === oldUserID) {
       const postRef = doc(db, "posts", docSnapshot.id);
-      batch.update(postRef, { userID: newUserID }); // Update userID for posts
+      batch.update(postRef, { userID: newUserID });
     }
   });
 
-  await batch.commit(); // Commit all updates in a single batch operation
+  await batch.commit();
 
   alert("User ID updated successfully.");
-  loadPosts(); // Refresh posts to show updated IDs
+  loadPosts();
 }
 
 // Load posts on page load
@@ -240,4 +233,4 @@ window.onload = loadPosts;
 // Attach event listeners
 document.getElementById("postButton").addEventListener("click", createPost);
 document.getElementById("changeUsernameButton").addEventListener("click", changeUsername);
-document
+document.getElementById("changeUserIDButton").addEventListener("click", changeUserID); // Make sure this is added
