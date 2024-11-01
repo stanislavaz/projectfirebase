@@ -49,13 +49,3 @@ main {
   border: 1px solid #eee;
   border-radius: 5px;
 }
-
-.deleteButton {
-  margin-top: 10px;
-  color: white;
-  background-color: red;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 3px;
-}
