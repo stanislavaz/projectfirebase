@@ -130,17 +130,22 @@ function displayPost(post) {
 }
 
 // Function to delete a post
+// Function to delete a post from Firestore
 async function deletePost(postId) {
-  const confirmation = confirm("Are you sure you want to delete this post?");
-  if (confirmation) {
-    try {
-      await deleteDoc(doc(db, "posts", postId)); // Delete post from Firestore
-      console.log(`Post with ID ${postId} deleted successfully.`);
-    } catch (error) {
-      console.error("Error deleting post:", error);
-      alert("Error deleting post: " + error.message); // Alert user of error
-    }
+  // Confirmation pop-up
+  const confirmDelete = confirm("Do you really want to delete the post?");
+  if (!confirmDelete) {
+    return; // Exit if the user does not confirm
+  }
+
+  try {
+    const postRef = doc(db, "posts", postId);
+    await deleteDoc(postRef);
+    alert("Post erfolgreich gelöscht.");
     loadPosts(); // Reload posts after deletion
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    alert("Ein Fehler ist beim Löschen des Beitrags aufgetreten.");
   }
 }
 
