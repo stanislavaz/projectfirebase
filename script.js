@@ -104,9 +104,9 @@ function displayPost(post) {
 
   let formattedDate;
   if (post.timestamp) {
-    formattedDate = new Date(post.timestamp).toLocaleString(); // Adjusted date formatting
+    formattedDate = new Date(post.timestamp).toLocaleDateString('de-DE'); // Format date to day/month/year
   } else {
-    formattedDate = "Date not available";
+    formattedDate = "Datum nicht verfügbar"; // "Date not available" in German
   }
 
   let postHTML = `
@@ -122,35 +122,24 @@ function displayPost(post) {
   // Only show delete button for the post's author
   const currentUserID = localStorage.getItem("userID");
   if (currentUserID === post.userID) {
-    postHTML += `<button class="button deleteButton" onclick="deletePost('${post.id}')">Löschen</button>`;
+    postHTML += `<button class="deleteButton" onclick="deletePost('${post.id}')">Löschen</button>`;
   }
 
   postElement.innerHTML = postHTML;
   document.getElementById("postsContainer").appendChild(postElement);
 }
 
-// Function to delete a post from Firestore
+// Function to delete a post
 async function deletePost(postId) {
-  try {
-    const postRef = doc(db, "posts", postId);
-    await deleteDoc(postRef);
-    alert("Post erfolgreich gelöscht.");
-    loadPosts();
-  } catch (error) {
-    console.error("Error deleting post:", error);
-    alert("Ein Fehler ist beim Löschen des Beitrags aufgetreten.");
+  const confirmation = confirm("Are you sure you want to delete this post?");
+  if (confirmation) {
+    await deleteDoc(doc(db, "posts", postId)); // Delete post from Firestore
+    loadPosts(); // Reload posts after deletion
   }
 }
 
-// Function to generate a unique user ID
-function generateUserID() {
-  const userID = 'user_' + Math.random().toString(36).substr(2, 9);
-  localStorage.setItem("userID", userID);
-  return userID;
-}
-
-// Load posts on page load
-window.onload = loadPosts;
-
-// Attach event listener to the Post button
+// Event listener for the post button
 document.getElementById("postButton").addEventListener("click", createPost);
+
+// Load posts when the page is loaded
+loadPosts();
