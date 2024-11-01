@@ -33,8 +33,8 @@ async function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
-  const username = getOrCreateUsername();
-  const userID = localStorage.getItem("userID");
+  const username = getOrCreateUsername(); // Ensure username consistency
+  const userID = localStorage.getItem("userID"); // Get updated userID
 
   if (!postContent.trim()) {
     alert("Post content cannot be empty.");
@@ -45,17 +45,17 @@ async function createPost() {
     content: postContent,
     timestamp: new Date(),
     author: username,
-    userID: userID
+    userID: userID, // Use the updated userID
   };
 
+  // Handle image upload if a file is provided
   if (imageFile) {
     const imageUrl = await uploadImage(imageFile);
     newPost.imageUrl = imageUrl;
   }
 
   await savePostToDatabase(newPost);
-  loadPosts();
-
+  loadPosts(); // Reload posts to show the new one
   document.getElementById("postContent").value = "";
   document.getElementById("imageUpload").value = "";
 }
@@ -78,17 +78,19 @@ async function savePostToDatabase(post) {
 }
 
 // Function to load posts from Firestore
+// Load posts for the current user only
 async function loadPosts() {
-  const userID = localStorage.getItem("userID");
+  const currentUserID = localStorage.getItem("userID"); // Get the updated userID
+  const querySnapshot = await getDocs(collection(db, "posts"));
   const postsContainer = document.getElementById("postsContainer");
   postsContainer.innerHTML = "";
 
-  const postsQuery = query(collection(db, "posts"), where("userID", "==", userID));
-  const querySnapshot = await getDocs(postsQuery);
-
   querySnapshot.forEach((doc) => {
     const post = { id: doc.id, ...doc.data() };
-    displayPost(post);
+    // Display only posts for the current userID
+    if (post.userID === currentUserID) {
+      displayPost(post);
+    }
   });
 }
 
@@ -168,22 +170,23 @@ function generateUserID() {
 // Function to change userID and update posts
 async function changeUserID() {
   const newUserID = prompt("Enter new userID:");
-  
+
   if (!newUserID || newUserID.trim() === "") {
     alert("User ID cannot be empty.");
     return;
   }
 
   const oldUserID = localStorage.getItem("userID");
-  
+
   if (oldUserID === newUserID) {
     alert("New user ID must be different from the current user ID.");
     return;
   }
 
   // Update localStorage with the new userID
-  localStorage.setItem("userID", newUserID); 
+  localStorage.setItem("userID", newUserID);
 
+  // Update Firestore posts with the old userID to use the new userID
   try {
     const querySnapshot = await getDocs(collection(db, "posts"));
     const batch = writeBatch(db);
@@ -193,13 +196,12 @@ async function changeUserID() {
       if (post.userID === oldUserID) {
         const postRef = doc(db, "posts", docSnapshot.id);
         batch.update(postRef, { userID: newUserID });
-        console.log(`Updating post ${docSnapshot.id} to new userID ${newUserID}`);
       }
     });
 
     await batch.commit();
-    alert("User ID updated successfully! All posts updated.");
-    loadPosts(); // Refresh posts to show updated user IDs
+    alert("User ID updated successfully! All relevant posts updated.");
+    loadPosts(); // Refresh posts to show only those associated with new userID
   } catch (error) {
     console.error("Error updating posts:", error);
     alert("An error occurred while updating posts.");
