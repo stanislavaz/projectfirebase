@@ -1,6 +1,5 @@
-// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
 
 // Firebase configuration and initialization
@@ -27,12 +26,20 @@ function getOrCreateUsername() {
   return username;
 }
 
+// Function to generate and store a unique userID if not already present
+function generateUserID() {
+  const newUserID = `user-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  localStorage.setItem("userID", newUserID);
+  return newUserID;
+}
+
 // Function to create a new post
 async function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
-  const username = getOrCreateUsername(); // Get username from localStorage or prompt
+  const username = getOrCreateUsername();
+  const userID = localStorage.getItem("userID") || generateUserID();
 
   if (!postContent.trim()) {
     alert("Post content cannot be empty.");
@@ -41,20 +48,19 @@ async function createPost() {
 
   const newPost = {
     content: postContent,
-    timestamp: new Date().toISOString(), // Save timestamp as an ISO string in UTC
+    timestamp: new Date().toLocaleString(),
     author: username,
+    userID: userID,
   };
 
-  // Handle image upload if a file is provided
   if (imageFile) {
-    const imageUrl = await uploadImage(imageFile); // Upload image and get URL
-    newPost.imageUrl = imageUrl; // Add the image URL to the new post
+    const imageUrl = await uploadImage(imageFile);
+    newPost.imageUrl = imageUrl;
   }
 
-  await savePostToDatabase(newPost); // Save post to Firestore
-  loadPosts(); // Reload posts to show the new one
+  await savePostToDatabase(newPost);
+  loadPosts();
 
-  // Clear form after posting
   document.getElementById("postContent").value = "";
   document.getElementById("imageUpload").value = "";
 }
@@ -69,45 +75,44 @@ async function uploadImage(file) {
 // Function to save post to Firestore
 async function savePostToDatabase(post) {
   try {
-    await addDoc(collection(db, "posts"), post); // Automatically generates a document ID
+    await addDoc(collection(db, "posts"), post);
     console.log("Post added successfully");
   } catch (error) {
     console.error("Error adding post:", error);
   }
 }
 
-// Function to load posts from Firestore and display them from newest to oldest
-// Function to load posts from Firestore and display them from newest to oldest
+// Function to load posts from Firestore
 async function loadPosts() {
   const querySnapshot = await getDocs(collection(db, "posts"));
   const postsContainer = document.getElementById("postsContainer");
-  postsContainer.innerHTML = ""; // Clear existing posts
+  postsContainer.innerHTML = "";
 
-  // Retrieve posts and sort by timestamp in descending order
-  const posts = [];
+  const postsArray = [];
   querySnapshot.forEach((doc) => {
-    posts.push(doc.data());
+    postsArray.push({ id: doc.id, ...doc.data() });
   });
-  posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-  // Display each post
-  posts.forEach((post) => displayPost(post, postsContainer));
+  postsArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  postsArray.forEach((post) => {
+    displayPost(post, postsContainer);
+  });
 }
 
-// Function to display a post in the DOM at the top of the container
+// Function to display a post in the DOM
 function displayPost(post, container) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
 
-  // Safely parse and format the timestamp or provide a fallback message
   let formattedDate;
   if (post.timestamp) {
     try {
       const date = new Date(post.timestamp);
-      formattedDate = date.toLocaleString(); // Localized date and time
+      formattedDate = date.toLocaleString();
     } catch (error) {
       console.error("Error parsing date:", error);
-      formattedDate = "Date not available";
+      formattedDate = post.timestamp;
     }
   } else {
     formattedDate = "Date not available";
@@ -123,10 +128,26 @@ function displayPost(post, container) {
     postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto; margin-top: 10px;">`;
   }
 
-  postElement.innerHTML = postHTML;
+  const currentUserID = localStorage.getItem("userID");
+  if (currentUserID === post.userID) {
+    postHTML += `<button class="deleteButton" onclick="deletePost('${post.id}')">Delete</button>`;
+  }
 
-  // Append each new post to the top of the container
-  container.insertBefore(postElement, container.firstChild);
+  postElement.innerHTML = postHTML;
+  container.appendChild(postElement);
+}
+
+// Function to delete a post from Firestore
+async function deletePost(postId) {
+  try {
+    const postRef = doc(db, "posts", postId);
+    await deleteDoc(postRef);
+    alert("Post deleted successfully.");
+    loadPosts();
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    alert("An error occurred while deleting the post.");
+  }
 }
 
 // Load posts on page load
