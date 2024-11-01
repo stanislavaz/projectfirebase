@@ -172,6 +172,7 @@ function generateUserID() {
 // Function to change userID and update posts
 // Function to change userID and update posts
 // Function to change userID and update posts
+// Function to change userID and update posts
 async function changeUserID() {
   const newUserID = prompt("Enter new userID:");
   
