@@ -67,12 +67,9 @@ main {
   color: #000; /* Darker text on hover */
 }
 
+/* Remove red styling from the delete button */
 .deleteButton {
-  border-color: #ff4d4d; /* Red border for delete button */
-}
-
-.deleteButton:hover {
-  background-color: #ffcccc; /* Light red background on hover */
+  /* Inherits all other button styles, no unique styles for delete */
 }
 
 /* Additional styling for post images */
