@@ -105,14 +105,20 @@ function displayPost(post) {
 
   let formattedDate;
   if (post.timestamp && post.timestamp.toDate) {
-    // Convert Firestore timestamp to JavaScript Date and format it as dd/mm/yyyy, hh:mm:ss
+    // Convert Firestore timestamp to JavaScript Date and format as "1. November 2024 um 09:38:42"
     const date = post.timestamp.toDate();
-    formattedDate = `${date.getDate().toString().padStart(2, '0')}/${
-      (date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}, ${
-      date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${
-      date.getSeconds().toString().padStart(2, '0')}`;
+    formattedDate = date.toLocaleString('de-DE', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      timeZoneName: 'short',
+      hour12: false
+    }).replace("GMT", "um"); // Replace "GMT" with "um" to match Firebase style
   } else {
-    formattedDate = "Date not available";
+    formattedDate = "Datum nicht verfügbar";
   }
 
   let postHTML = `
