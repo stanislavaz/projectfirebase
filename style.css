@@ -32,7 +32,7 @@ main {
 }
 
 #newPostForm {
-  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 #postContent {
@@ -48,4 +48,14 @@ main {
   padding: 5px;
   border: 1px solid #eee;
   border-radius: 5px;
+}
+
+.deleteButton {
+  margin-top: 10px;
+  color: white;
+  background-color: red;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 3px;
 }
