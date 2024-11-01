@@ -171,7 +171,10 @@ function generateUserID() {
 
 // Function to change userID and update posts
 async function changeUserID() {
+  console.log("Change User ID button clicked"); // Debugging message
   const newUserID = prompt("Enter new userID:");
+  
+  // Validate the input
   if (!newUserID || newUserID.trim() === "") {
     alert("User ID cannot be empty.");
     return;
