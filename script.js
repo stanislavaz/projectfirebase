@@ -104,8 +104,9 @@ function displayPost(post) {
   postElement.classList.add("post");
 
   let formattedDate;
-  if (post.timestamp) {
-    formattedDate = new Date(post.timestamp).toLocaleString(); // Adjusted date formatting
+  if (post.timestamp && post.timestamp.toDate) {
+    // Convert Firestore timestamp to JavaScript Date and format it
+    formattedDate = post.timestamp.toDate().toLocaleString();
   } else {
     formattedDate = "Date not available";
   }
@@ -140,6 +141,7 @@ function displayPost(post) {
     });
   }
 }
+
 
 // Function to delete a post from Firestore
 async function deletePost(postId) {
