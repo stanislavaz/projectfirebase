@@ -133,7 +133,13 @@ function displayPost(post) {
 async function deletePost(postId) {
   const confirmation = confirm("Are you sure you want to delete this post?");
   if (confirmation) {
-    await deleteDoc(doc(db, "posts", postId)); // Delete post from Firestore
+    try {
+      await deleteDoc(doc(db, "posts", postId)); // Delete post from Firestore
+      console.log(`Post with ID ${postId} deleted successfully.`);
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      alert("Error deleting post: " + error.message); // Alert user of error
+    }
     loadPosts(); // Reload posts after deletion
   }
 }
