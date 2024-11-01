@@ -1,6 +1,6 @@
 // Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
 
 // Firebase configuration and initialization
@@ -29,13 +29,12 @@ function getOrCreateUsername() {
 }
 
 // Function to create a new post
-// Function to create a new post
 async function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
-  const username = getOrCreateUsername(); // Get or prompt username from localStorage
-  const userID = localStorage.getItem("userID"); // Get the updated userID
+  const username = getOrCreateUsername();
+  const userID = localStorage.getItem("userID");
 
   if (!postContent.trim()) {
     alert("Post content cannot be empty.");
@@ -46,19 +45,17 @@ async function createPost() {
     content: postContent,
     timestamp: new Date(),
     author: username,
-    userID: userID, // Use the updated userID
+    userID: userID
   };
 
-  // Handle image upload if a file is provided
   if (imageFile) {
-    const imageUrl = await uploadImage(imageFile); // Upload image and get URL
-    newPost.imageUrl = imageUrl; // Add the image URL to the new post
+    const imageUrl = await uploadImage(imageFile);
+    newPost.imageUrl = imageUrl;
   }
 
-  await savePostToDatabase(newPost); // Save post to Firestore
-  loadPosts(); // Reload posts to show the new one
+  await savePostToDatabase(newPost);
+  loadPosts();
 
-  // Clear form after posting
   document.getElementById("postContent").value = "";
   document.getElementById("imageUpload").value = "";
 }
@@ -73,7 +70,7 @@ async function uploadImage(file) {
 // Function to save post to Firestore
 async function savePostToDatabase(post) {
   try {
-    await addDoc(collection(db, "posts"), post); // Automatically generates a document ID
+    await addDoc(collection(db, "posts"), post);
     console.log("Post added successfully");
   } catch (error) {
     console.error("Error adding post:", error);
@@ -81,19 +78,20 @@ async function savePostToDatabase(post) {
 }
 
 // Function to load posts from Firestore
-// Function to load posts from Firestore
 async function loadPosts() {
-  const querySnapshot = await getDocs(collection(db, "posts"));
+  const userID = localStorage.getItem("userID");
   const postsContainer = document.getElementById("postsContainer");
-  postsContainer.innerHTML = ""; // Clear existing posts
+  postsContainer.innerHTML = "";
+
+  const postsQuery = query(collection(db, "posts"), where("userID", "==", userID));
+  const querySnapshot = await getDocs(postsQuery);
 
   querySnapshot.forEach((doc) => {
     const post = { id: doc.id, ...doc.data() };
-    displayPost(post); // Call display function for each post
+    displayPost(post);
   });
 }
 
-// Function to display a post in the DOM
 // Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
@@ -117,7 +115,7 @@ function displayPost(post) {
   }
 
   let postHTML = `
-    <h3>${post.author} (UserID: ${post.userID})</h3>
+    <h3>${post.author}</h3>
     <p class="timestamp">${formattedDate}</p>
     <p>${post.content}</p>
   `;
@@ -126,23 +124,18 @@ function displayPost(post) {
     postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto; margin-top: 10px;">`;
   }
 
-  const currentUserID = localStorage.getItem("userID");
-  if (currentUserID === post.userID) {
-    postHTML += `<button class="button deleteButton" data-id="${post.id}">Löschen</button>`;
-  }
+  postHTML += `<button class="button deleteButton" data-id="${post.id}">Löschen</button>`;
 
   postElement.innerHTML = postHTML;
   document.getElementById("postsContainer").appendChild(postElement);
 
   const deleteButton = postElement.querySelector(".deleteButton");
-  if (deleteButton) {
-    deleteButton.addEventListener("click", () => {
-      const confirmDelete = confirm("Do you really want to delete the post?");
-      if (confirmDelete) {
-        deletePost(post.id);
-      }
-    });
-  }
+  deleteButton.addEventListener("click", () => {
+    const confirmDelete = confirm("Do you really want to delete the post?");
+    if (confirmDelete) {
+      deletePost(post.id);
+    }
+  });
 }
 
 // Function to delete a post from Firestore
@@ -151,7 +144,7 @@ async function deletePost(postId) {
     const postRef = doc(db, "posts", postId);
     await deleteDoc(postRef);
     alert("Post erfolgreich gelöscht.");
-    loadPosts(); // Reload posts after deletion
+    loadPosts();
   } catch (error) {
     console.error("Error deleting post:", error);
     alert("Ein Fehler ist beim Löschen des Beitrags aufgetreten.");
@@ -166,13 +159,9 @@ function generateUserID() {
 }
 
 // Function to change userID and update posts
-// Function to change userID and update posts
-// Function to change userID and update posts
-// Function to change userID and update posts
 async function changeUserID() {
   const newUserID = prompt("Enter new userID:");
   
-  // Validate the input
   if (!newUserID || newUserID.trim() === "") {
     alert("User ID cannot be empty.");
     return;
@@ -180,36 +169,28 @@ async function changeUserID() {
 
   const oldUserID = localStorage.getItem("userID");
   
-  // Ensure the new userID is different
   if (oldUserID === newUserID) {
     alert("New user ID must be different from the current user ID.");
     return;
   }
 
-  // Update localStorage with the new userID
-  localStorage.setItem("userID", newUserID); 
+  localStorage.setItem("userID", newUserID);
 
-  // Fetch all posts to update the userID in Firestore
   const querySnapshot = await getDocs(collection(db, "posts"));
-  const batch = writeBatch(db); // Initialize batch for Firestore updates
+  const batch = writeBatch(db);
 
-  // Update all posts with the old userID
   querySnapshot.forEach((docSnapshot) => {
     const post = docSnapshot.data();
     if (post.userID === oldUserID) {
       const postRef = doc(db, "posts", docSnapshot.id);
-      batch.update(postRef, { userID: newUserID }); // Update userID for posts
+      batch.update(postRef, { userID: newUserID });
     }
   });
 
-  // Commit the batch update
-  await batch.commit(); 
-
+  await batch.commit();
   alert("User ID updated successfully! All posts updated.");
-  loadPosts(); // Refresh posts to show updated user IDs
+  loadPosts();
 }
-
-
 
 // Event listener for the Change User ID button
 document.getElementById("changeUserIDButton").addEventListener("click", changeUserID);
