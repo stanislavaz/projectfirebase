@@ -144,7 +144,7 @@ function displayPost(post) {
   const deleteButton = postElement.querySelector(".deleteButton");
   if (deleteButton) {
     deleteButton.addEventListener("click", () => {
-      const confirmDelete = confirm("Do you really want to delete the post?");
+      const confirmDelete = confirm("Sagen wir uns schon sobald Lebewohl?");
       if (confirmDelete) {
         deletePost(post.id);
       }
@@ -156,7 +156,7 @@ function displayPost(post) {
 async function deletePost(postId) {
   try {
     await deleteDoc(doc(db, "posts", postId));
-    alert("Post deleted successfully.");
+    alert("Die schöne Nachricht behalt ich im Herz, gewiss sei dir kein Trennungsschmerz!");
     loadPosts();
   } catch (error) {
     console.error("Error deleting post:", error);
