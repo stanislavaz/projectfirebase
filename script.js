@@ -114,25 +114,30 @@ async function loadPosts() {
 
 // Function to display a post in the DOM
 // Function to display a post in the DOM
+// Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
 
-  let formattedDate = "Date not available";
-  if (post.timestamp && post.timestamp.toDate) {
-    const date = post.timestamp.toDate();  // Convert Firebase Timestamp to Date object
-    formattedDate = date.toLocaleString('de-DE', {  // Format the date as per German locale
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false // 24-hour format
-    });
+  let formattedDate = "Date not available";  // Default if timestamp is not found
+  if (post.timestamp) {
+    // Check if the timestamp is a valid Firebase Timestamp object and convert it to Date
+    const timestamp = post.timestamp instanceof Timestamp ? post.timestamp.toDate() : new Date(post.timestamp.seconds * 1000);
+    
+    if (timestamp instanceof Date && !isNaN(timestamp)) {
+      // If the timestamp is valid, format it
+      formattedDate = timestamp.toLocaleString('de-DE', {  // Format the date as per German locale
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false // 24-hour format
+      });
+    }
   }
 
-  // Modify to exclude userID display
   let postHTML = `
     <h3>${post.author}</h3> 
     <p class="timestamp">${formattedDate}</p>
