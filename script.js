@@ -104,6 +104,7 @@ async function loadPosts() {
 }
 
 // Function to display a post in the DOM
+// Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
@@ -124,7 +125,7 @@ function displayPost(post) {
     postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto;">`;
   }
 
-  postHTML += `<button class="button deleteButton" data-id="${post.id}">Delete</button>`;
+  postHTML += `<button class="button deleteButton" data-id="${post.id}">Löschen</button>`;
   postElement.innerHTML = postHTML;
 
   const deleteButton = postElement.querySelector(".deleteButton");
