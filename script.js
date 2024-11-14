@@ -39,34 +39,29 @@ const currentUserID = localStorage.getItem("userID");
 // Function to create a new post
 async function createPost() {
   const postContent = document.getElementById("postContent").value;
-  const imageUpload = document.getElementById("imageUpload");
-  const imageFile = imageUpload.files[0];
-  const username = getOrCreateUsername();
-
   if (!postContent.trim()) {
     alert("Post content cannot be empty.");
     return;
   }
 
+  const username = getOrCreateUsername();
   const newPost = {
     content: postContent,
     timestamp: new Date(),
     author: username,
-    userID: currentUserID, // Use only initial userID
+    userID: localStorage.getItem("userID"),
   };
 
-  // Handle image upload if a file is provided
-  if (imageFile) {
-    const imageUrl = await uploadImage(imageFile);
-    newPost.imageUrl = imageUrl;
+  try {
+    await savePostToDatabase(newPost);
+    document.getElementById("postContent").value = "";
+    loadPosts(); // Reload posts after successful creation
+  } catch (error) {
+    console.error("Error creating post:", error);
+    alert("There was an issue creating the post.");
   }
-
-  await savePostToDatabase(newPost);
-  loadPosts(); // Reload posts to show the new one
-
-  document.getElementById("postContent").value = "";
-  document.getElementById("imageUpload").value = "";
 }
+
 
 // Function to upload image to Firebase Storage
 async function uploadImage(file) {
