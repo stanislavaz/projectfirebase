@@ -36,10 +36,11 @@ function getOrCreateUsername() {
 }
 
 // Function to create a new post
+// Function to create a new post
 async function createPost() {
   const postContent = document.getElementById("postContent").value.trim();
   const imageUpload = document.getElementById("imageUpload");
-  const imageFile = imageUpload.files[0];
+  const imageFile = imageUpload.files[0];  // Getting the file from input
   const username = getOrCreateUsername();
 
   if (!username || !postContent) {
@@ -55,11 +56,12 @@ async function createPost() {
   };
 
   try {
-    // Handle image upload if provided
+    // Handle image upload if an image file is provided
     if (imageFile) {
       newPost.imageUrl = await uploadImage(imageFile);
     }
 
+    // Add the new post document to Firestore
     await addDoc(collection(db, "posts"), newPost);
     alert("Im Briefkasten geht die Post ab!");
     document.getElementById("postContent").value = "";
@@ -73,10 +75,12 @@ async function createPost() {
 
 // Function to upload an image to Firebase Storage
 async function uploadImage(file) {
-  const storageRef = ref(storage, `images/${file.name}`);
-  await uploadBytes(storageRef, file);
-  return await getDownloadURL(storageRef);
+  const storageRef = ref(storage, `images/${file.name}`);  // Firebase Storage path
+  await uploadBytes(storageRef, file);  // Upload the image file
+  const imageUrl = await getDownloadURL(storageRef);  // Get the download URL of the uploaded image
+  return imageUrl;  // Return the URL to associate with the post
 }
+
 
 // Generates a userID if none exists
 function generateUserID() {
