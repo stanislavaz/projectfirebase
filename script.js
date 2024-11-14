@@ -105,6 +105,7 @@ async function loadPosts() {
 
 // Function to display a post in the DOM
 // Function to display a post in the DOM
+// Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
@@ -112,29 +113,45 @@ function displayPost(post) {
   let formattedDate = "Date not available";
   if (post.timestamp && post.timestamp.toDate) {
     const date = post.timestamp.toDate();
-    formattedDate = date.toLocaleString();
+    formattedDate = date.toLocaleString('de-DE', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      timeZoneName: 'short',
+      hour12: false
+    }).replace("GMT", "um");
   }
 
+  // Modify to exclude userID display
   let postHTML = `
-    <h3>${post.author}</h3>
+    <h3>${post.author}</h3> 
     <p class="timestamp">${formattedDate}</p>
     <p>${post.content}</p>
   `;
 
   if (post.imageUrl) {
-    postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto;">`;
+    postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto; margin-top: 10px;">`;
   }
 
   postHTML += `<button class="button deleteButton" data-id="${post.id}">Löschen</button>`;
+
   postElement.innerHTML = postHTML;
+  document.getElementById("postsContainer").appendChild(postElement);
 
   const deleteButton = postElement.querySelector(".deleteButton");
   if (deleteButton) {
-    deleteButton.addEventListener("click", () => deletePost(post.id));
+    deleteButton.addEventListener("click", () => {
+      const confirmDelete = confirm("Do you really want to delete the post?");
+      if (confirmDelete) {
+        deletePost(post.id);
+      }
+    });
   }
-
-  document.getElementById("postsContainer").appendChild(postElement);
 }
+
 
 // Function to delete a post from Firestore
 async function deletePost(postId) {
