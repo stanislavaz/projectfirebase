@@ -113,23 +113,23 @@ async function loadPosts() {
 }
 
 // Function to display a post in the DOM
+// Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
 
   let formattedDate = "Date not available";
   if (post.timestamp && post.timestamp.toDate) {
-    const date = post.timestamp.toDate();
-    formattedDate = date.toLocaleString('de-DE', {
-      day: 'numeric',
-      month: 'long',
+    const date = post.timestamp.toDate();  // Convert Firebase Timestamp to Date object
+    formattedDate = date.toLocaleString('de-DE', {  // Format the date as per German locale
+      day: '2-digit',
+      month: '2-digit',
       year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      timeZoneName: 'short',
-      hour12: false
-    }).replace("GMT", "um");
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false // 24-hour format
+    });
   }
 
   // Modify to exclude userID display
@@ -158,6 +158,7 @@ function displayPost(post) {
     });
   }
 }
+
 
 // Function to delete a post from Firestore
 async function deletePost(postId) {
