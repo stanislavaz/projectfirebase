@@ -43,7 +43,7 @@ async function createPost() {
   const username = getOrCreateUsername();
 
   if (!username || !postContent) {
-    alert("Both a username and post content are required.");
+    alert("Der Name und seine Bedeutung sind allein schon jeden Preis wert, den du willst.");
     return;
   }
 
@@ -61,13 +61,13 @@ async function createPost() {
     }
 
     await addDoc(collection(db, "posts"), newPost);
-    alert("Post created successfully!");
+    alert("Im Briefkasten geht die Post ab!");
     document.getElementById("postContent").value = "";
     imageUpload.value = "";
     loadPosts(); // Reload posts after new post is created
   } catch (error) {
-    console.error("Error creating post:", error);
-    alert("Failed to create post. Please try again.");
+    console.error("Na sowas... Vielleicht klappt's beim nächsten Mal!", error);
+    alert("Kopf hoch! Das nächste Mal klappt es ganz sicher.");
   }
 }
 
