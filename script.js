@@ -82,17 +82,23 @@ async function savePostToDatabase(post) {
 
 // Function to load posts from Firestore
 async function loadPosts() {
-  const querySnapshot = await getDocs(collection(db, "posts"));
-  const postsContainer = document.getElementById("postsContainer");
-  postsContainer.innerHTML = "";
+  try {
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    const postsContainer = document.getElementById("postsContainer");
+    postsContainer.innerHTML = "";
 
-  querySnapshot.forEach((doc) => {
-    const post = { id: doc.id, ...doc.data() };
-    if (post.userID === currentUserID) {
-      displayPost(post);
-    }
-  });
+    querySnapshot.forEach((doc) => {
+      const post = { id: doc.id, ...doc.data() };
+      if (post.userID === localStorage.getItem("userID")) {
+        displayPost(post);
+      }
+    });
+  } catch (error) {
+    console.error("Error loading posts:", error);
+    alert("There was an issue loading the posts.");
+  }
 }
+
 
 // Function to display a post in the DOM
 function displayPost(post) {
