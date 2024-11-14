@@ -24,11 +24,11 @@ const storage = getStorage(app);
 function getOrCreateUsername() {
   let username = localStorage.getItem("username");
   if (!username) {
-    username = prompt("Enter your username:");
+    username = prompt("Oh weh! Wir haben uns einander doch noch gar nicht vorgestellt... Von der sicheren Anonymität der Namenlosen können die Namhaften nur träumen!");
     if (username) {
       localStorage.setItem("username", username);
     } else {
-      alert("Username is required to create a post.");
+      alert("Nenn' ich dich, so kenn' ich dich!");
       return null;
     }
   }
