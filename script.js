@@ -113,8 +113,6 @@ async function loadPosts() {
 }
 
 // Function to display a post in the DOM
-// Function to display a post in the DOM
-// Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
