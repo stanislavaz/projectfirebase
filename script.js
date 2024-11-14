@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
-import { query, orderBy } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js"; // Ensure you're importing query and orderBy correctly
+import { query, orderBy, getDocs as getFirestoreDocs, collection as getCollection } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js"; // Ensure you're importing query and orderBy correctly
 import { Timestamp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";  // Import Timestamp 
 
 // Firebase configuration and initialization
@@ -49,7 +49,7 @@ async function createPost() {
 
   const newPost = {
     content: postContent,
-    timestamp: Timestamp.fromDate(new Date()), // Ensure the timestamp is stored correctly
+    timestamp: Timestamp.fromDate(new Date()), // Store timestamp as Firebase Timestamp
     author: username,
     userID: localStorage.getItem("userID") || generateUserID(), // Ensures userID is present
   };
@@ -87,29 +87,19 @@ function generateUserID() {
 
 // Function to load posts from Firestore in chronological order (newest first)
 async function loadPosts() {
-  try {
-    const postsQuery = query(
-      collection(db, "posts"),
-      orderBy("timestamp", "desc") // Orders posts by timestamp in descending order
-    );
+  const postsQuery = query(
+    collection(db, "posts"),
+    orderBy("timestamp", "desc") // Orders posts by timestamp in descending order
+  );
 
-    const querySnapshot = await getDocs(postsQuery);
-    const postsContainer = document.getElementById("postsContainer");
-    postsContainer.innerHTML = ""; // Clear existing posts
+  const querySnapshot = await getDocs(postsQuery);
+  const postsContainer = document.getElementById("postsContainer");
+  postsContainer.innerHTML = ""; // Clear existing posts
 
-    // Check if any posts are fetched
-    console.log("Fetched posts count: ", querySnapshot.size);
-
-    querySnapshot.forEach((doc) => {
-      const post = { id: doc.id, ...doc.data() };
-      console.log("Post data: ", post); // Debugging the fetched post data
-      displayPost(post); // Display all posts in chronological order
-    });
-
-  } catch (error) {
-    console.error("Error loading posts: ", error);
-    alert("Failed to load posts. Please try again.");
-  }
+  querySnapshot.forEach((doc) => {
+    const post = { id: doc.id, ...doc.data() };
+    displayPost(post); // Display all posts in chronological order
+  });
 }
 
 // Function to display a post in the DOM
@@ -117,13 +107,13 @@ function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
 
-  let formattedDate = "Date not available";  // Default if timestamp is not found
+  let formattedDate = "Date not available"; // Default if timestamp is not found
   if (post.timestamp) {
-    // Check if the timestamp is a valid Firebase Timestamp object and convert it to Date
+    // Ensure timestamp is a Firebase Timestamp object and convert it to Date
     const timestamp = post.timestamp instanceof Timestamp ? post.timestamp.toDate() : new Date(post.timestamp.seconds * 1000);
-    
+
     if (timestamp instanceof Date && !isNaN(timestamp)) {
-      // If the timestamp is valid, format it
+      // Format the timestamp
       formattedDate = timestamp.toLocaleString('de-DE', {  // Format the date as per German locale
         day: '2-digit',
         month: '2-digit',
@@ -162,7 +152,6 @@ function displayPost(post) {
   }
 }
 
-
 // Function to delete a post from Firestore
 async function deletePost(postId) {
   try {
@@ -179,7 +168,4 @@ async function deletePost(postId) {
 document.getElementById("postButton").addEventListener("click", createPost);
 
 // Load posts when the page is loaded
-window.onload = () => {
-  console.log("Page loaded, fetching posts...");
-  loadPosts();
-};
+window.onload = loadPosts;
