@@ -50,6 +50,45 @@ main {
   border-radius: 5px;
 }
 
+/* Unified button and label styling */
+button, label {
+  padding: 10px 20px; /* Consistent padding */
+  background-color: #4CAF50; /* Green background */
+  color: white; /* White text */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  font-size: 16px; /* Text size */
+  cursor: pointer; /* Pointer cursor on hover */
+  text-align: center;
+  display: inline-block;
+  margin: 5px 0; /* Margin for spacing */
+  transition: background-color 0.3s; /* Smooth transition for background */
+}
+
+/* Hover effects for both buttons */
+button:hover, label:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+/* Focus effect for better accessibility */
+button:focus, label:focus {
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 3px 2px rgba(72, 183, 72, 0.7); /* Green shadow on focus */
+}
+
+/* Hide the file input but keep it functional */
+input[type="file"] {
+  display: none; /* Hide file input */
+}
+
+/* Optional: Make label behave like a button */
+label {
+  display: inline-block; /* Make the label behave like a button */
+  cursor: pointer;
+  text-align: center; /* Center the label text */
+  width: auto; /* Allow the width to adjust automatically */
+}
+
 .button, .deleteButton {
   background-color: white;
   color: #333;
