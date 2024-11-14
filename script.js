@@ -18,151 +18,137 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Function to prompt for a username once and store it in localStorage
+// Function to prompt for a username and store it in localStorage
 function getOrCreateUsername() {
   let username = localStorage.getItem("username");
   if (!username) {
     username = prompt("Enter your username:");
-    if (username) localStorage.setItem("username", username);
+    if (username) {
+      localStorage.setItem("username", username);
+    } else {
+      alert("Username is required to create a post.");
+      return null;
+    }
   }
   return username;
 }
 
-// Generate a unique user ID once if not present
-if (!localStorage.getItem("userID")) {
-  const userID = 'user_' + Math.random().toString(36).substr(2, 9);
-  localStorage.setItem("userID", userID);
-}
-
-const currentUserID = localStorage.getItem("userID");
-
 // Function to create a new post
 async function createPost() {
-  const postContent = document.getElementById("postContent").value;
-  if (!postContent.trim()) {
-    alert("Post content cannot be empty.");
+  const postContent = document.getElementById("postContent").value.trim();
+  const imageUpload = document.getElementById("imageUpload");
+  const imageFile = imageUpload.files[0];
+  const username = getOrCreateUsername();
+
+  if (!username || !postContent) {
+    alert("Both a username and post content are required.");
     return;
   }
 
-  const username = getOrCreateUsername();
   const newPost = {
     content: postContent,
     timestamp: new Date(),
     author: username,
-    userID: localStorage.getItem("userID"),
+    userID: localStorage.getItem("userID") || generateUserID(), // Ensures userID is present
   };
 
   try {
-    await savePostToDatabase(newPost);
+    // Handle image upload if provided
+    if (imageFile) {
+      newPost.imageUrl = await uploadImage(imageFile);
+    }
+
+    await addDoc(collection(db, "posts"), newPost);
+    alert("Post created successfully!");
     document.getElementById("postContent").value = "";
-    loadPosts(); // Reload posts after successful creation
+    imageUpload.value = "";
+    loadPosts();
   } catch (error) {
     console.error("Error creating post:", error);
-    alert("There was an issue creating the post.");
+    alert("Failed to create post. Please try again.");
   }
 }
 
-
-// Function to upload image to Firebase Storage
+// Function to upload an image to Firebase Storage
 async function uploadImage(file) {
   const storageRef = ref(storage, `images/${file.name}`);
   await uploadBytes(storageRef, file);
   return await getDownloadURL(storageRef);
 }
 
-// Function to save post to Firestore
-async function savePostToDatabase(post) {
-  try {
-    await addDoc(collection(db, "posts"), post);
-    console.log("Post added successfully");
-  } catch (error) {
-    console.error("Error adding post:", error);
-  }
+// Generates a userID if none exists
+function generateUserID() {
+  const userID = 'user_' + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem("userID", userID);
+  return userID;
 }
 
 // Function to load posts from Firestore
 async function loadPosts() {
   try {
+    const currentUserID = localStorage.getItem("userID");
     const querySnapshot = await getDocs(collection(db, "posts"));
     const postsContainer = document.getElementById("postsContainer");
-    postsContainer.innerHTML = "";
+    postsContainer.innerHTML = ""; // Clear container before loading posts
 
     querySnapshot.forEach((doc) => {
       const post = { id: doc.id, ...doc.data() };
-      if (post.userID === localStorage.getItem("userID")) {
+      if (post.userID === currentUserID) {
         displayPost(post);
       }
     });
   } catch (error) {
     console.error("Error loading posts:", error);
-    alert("There was an issue loading the posts.");
+    alert("Failed to load posts.");
   }
 }
-
 
 // Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("post");
 
-  let formattedDate;
+  let formattedDate = "Date not available";
   if (post.timestamp && post.timestamp.toDate) {
     const date = post.timestamp.toDate();
-    formattedDate = date.toLocaleString('de-DE', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      timeZoneName: 'short',
-      hour12: false
-    }).replace("GMT", "um");
-  } else {
-    formattedDate = "Datum nicht verfügbar";
+    formattedDate = date.toLocaleString();
   }
 
   let postHTML = `
-    <h3>${post.author} (UserID: ${post.userID})</h3>
+    <h3>${post.author}</h3>
     <p class="timestamp">${formattedDate}</p>
     <p>${post.content}</p>
   `;
 
   if (post.imageUrl) {
-    postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto; margin-top: 10px;">`;
+    postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto;">`;
   }
 
-  postHTML += `<button class="button deleteButton" data-id="${post.id}">Löschen</button>`;
-
+  postHTML += `<button class="button deleteButton" data-id="${post.id}">Delete</button>`;
   postElement.innerHTML = postHTML;
-  document.getElementById("postsContainer").appendChild(postElement);
 
   const deleteButton = postElement.querySelector(".deleteButton");
   if (deleteButton) {
-    deleteButton.addEventListener("click", () => {
-      const confirmDelete = confirm("Do you really want to delete the post?");
-      if (confirmDelete) {
-        deletePost(post.id);
-      }
-    });
+    deleteButton.addEventListener("click", () => deletePost(post.id));
   }
+
+  document.getElementById("postsContainer").appendChild(postElement);
 }
 
 // Function to delete a post from Firestore
 async function deletePost(postId) {
   try {
-    const postRef = doc(db, "posts", postId);
-    await deleteDoc(postRef);
-    alert("Post erfolgreich gelöscht.");
+    await deleteDoc(doc(db, "posts", postId));
+    alert("Post deleted successfully.");
     loadPosts();
   } catch (error) {
     console.error("Error deleting post:", error);
-    alert("Ein Fehler ist beim Löschen des Beitrags aufgetreten.");
+    alert("Failed to delete post.");
   }
 }
 
 // Event listener for the Post button
 document.getElementById("postButton").addEventListener("click", createPost);
 
-// Load posts on page load
-loadPosts();
+// Load posts when the page is loaded
+window.onload = loadPosts;
