@@ -161,4 +161,7 @@ async function deletePost(postId) {
 }
 
 // Event listener for the Post button
-document.get
+document.getElementById("postButton").addEventListener("click", createPost);
+
+// Load posts on page load
+loadPosts();
