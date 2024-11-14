@@ -159,8 +159,8 @@ async function deletePost(postId) {
     alert("Die schöne Nachricht behalt ich im Herz, gewiss sei dir kein Trennungsschmerz!");
     loadPosts();
   } catch (error) {
-    console.error("Error deleting post:", error);
-    alert("Failed to delete post.");
+    console.error("Hoppla! Dann sind wir wohl noch nicht Abschiedsreif!:", error);
+    alert("Noch eine Weile bleib ich bei dir!");
   }
 }
 
