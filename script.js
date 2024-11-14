@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
-import { query, orderBy, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js"; // Ensure you're importing query and orderBy correctly
+import { query, orderBy } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js"; // Ensure you're importing query and orderBy correctly
 import { Timestamp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";  // Import Timestamp 
 
 // Firebase configuration and initialization
@@ -70,6 +70,7 @@ async function createPost() {
     alert("Failed to create post. Please try again.");
   }
 }
+
 // Function to upload an image to Firebase Storage
 async function uploadImage(file) {
   const storageRef = ref(storage, `images/${file.name}`);
@@ -84,28 +85,33 @@ function generateUserID() {
   return userID;
 }
 
-// Function to load posts from Firestore
 // Function to load posts from Firestore in chronological order (newest first)
 async function loadPosts() {
-  const postsQuery = query(
-    collection(db, "posts"),
-    orderBy("timestamp", "desc") // Orders posts by timestamp in descending order
-  );
+  try {
+    const postsQuery = query(
+      collection(db, "posts"),
+      orderBy("timestamp", "desc") // Orders posts by timestamp in descending order
+    );
 
-  const querySnapshot = await getDocs(postsQuery);
-  const postsContainer = document.getElementById("postsContainer");
-  postsContainer.innerHTML = ""; // Clear existing posts
+    const querySnapshot = await getDocs(postsQuery);
+    const postsContainer = document.getElementById("postsContainer");
+    postsContainer.innerHTML = ""; // Clear existing posts
 
-  querySnapshot.forEach((doc) => {
-    const post = { id: doc.id, ...doc.data() };
-    displayPost(post); // Display all posts in chronological order
-  });
+    // Check if any posts are fetched
+    console.log("Fetched posts count: ", querySnapshot.size);
+
+    querySnapshot.forEach((doc) => {
+      const post = { id: doc.id, ...doc.data() };
+      console.log("Post data: ", post); // Debugging the fetched post data
+      displayPost(post); // Display all posts in chronological order
+    });
+
+  } catch (error) {
+    console.error("Error loading posts: ", error);
+    alert("Failed to load posts. Please try again.");
+  }
 }
 
-
-
-// Function to display a post in the DOM
-// Function to display a post in the DOM
 // Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
@@ -153,7 +159,6 @@ function displayPost(post) {
   }
 }
 
-
 // Function to delete a post from Firestore
 async function deletePost(postId) {
   try {
@@ -170,4 +175,7 @@ async function deletePost(postId) {
 document.getElementById("postButton").addEventListener("click", createPost);
 
 // Load posts when the page is loaded
-window.onload = loadPosts;
+window.onload = () => {
+  console.log("Page loaded, fetching posts...");
+  loadPosts();
+};
