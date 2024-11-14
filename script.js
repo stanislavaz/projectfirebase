@@ -84,16 +84,23 @@ function generateUserID() {
 }
 
 // Function to load posts from Firestore
+// Function to load posts from Firestore in chronological order (newest first)
 async function loadPosts() {
-  const querySnapshot = await getDocs(collection(db, "posts"));
+  const postsQuery = query(
+    collection(db, "posts"),
+    orderBy("timestamp", "desc") // Orders posts by timestamp in descending order
+  );
+
+  const querySnapshot = await getDocs(postsQuery);
   const postsContainer = document.getElementById("postsContainer");
-  postsContainer.innerHTML = "";
+  postsContainer.innerHTML = ""; // Clear existing posts
 
   querySnapshot.forEach((doc) => {
     const post = { id: doc.id, ...doc.data() };
-    displayPost(post); // Display all posts without filtering by userID
+    displayPost(post); // Display all posts in chronological order
   });
 }
+
 
 
 // Function to display a post in the DOM
