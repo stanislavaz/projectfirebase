@@ -50,27 +50,28 @@ main {
   border-radius: 5px;
 }
 
-/* Unified button and label styling */
+/* Style for buttons and label to make them white and look like 'Absenden' button */
 button, label {
-  padding: 10px 20px; /* Consistent padding */
-  background-color: #4CAF50; /* Green background */
-  color: white; /* White text */
-  border: none; /* No border */
+  background-color: white; /* White background */
+  color: #333; /* Dark text */
+  border: 1px solid #ccc; /* Border color matching the default button */
   border-radius: 5px; /* Rounded corners */
+  padding: 10px 20px; /* Consistent padding */
+  cursor: pointer; /* Pointer cursor for clickable items */
   font-size: 16px; /* Text size */
-  cursor: pointer; /* Pointer cursor on hover */
-  text-align: center;
-  display: inline-block;
-  margin: 5px 0; /* Margin for spacing */
-  transition: background-color 0.3s; /* Smooth transition for background */
+  text-align: center; /* Centered text */
+  display: inline-block; /* Make the label behave like a button */
+  margin-top: 10px; /* Margin between buttons */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for background and text color */
 }
 
-/* Hover effects for both buttons */
+/* Hover effect for both buttons */
 button:hover, label:hover {
-  background-color: #45a049; /* Darker green on hover */
+  background-color: #f0f0f0; /* Light gray background on hover */
+  color: #000; /* Dark text color on hover */
 }
 
-/* Focus effect for better accessibility */
+/* Focus effect for accessibility */
 button:focus, label:focus {
   outline: none; /* Remove default outline */
   box-shadow: 0 0 3px 2px rgba(72, 183, 72, 0.7); /* Green shadow on focus */
@@ -78,15 +79,14 @@ button:focus, label:focus {
 
 /* Hide the file input but keep it functional */
 input[type="file"] {
-  display: none; /* Hide file input */
+  display: none; /* Hide the file input */
 }
 
 /* Optional: Make label behave like a button */
 label {
-  display: inline-block; /* Make the label behave like a button */
-  cursor: pointer;
-  text-align: center; /* Center the label text */
-  width: auto; /* Allow the width to adjust automatically */
+  display: inline-block; /* Makes label like a button */
+  cursor: pointer; /* Pointer cursor */
+  width: auto; /* Width adjusts automatically */
 }
 
 .button, .deleteButton {
