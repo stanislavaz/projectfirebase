@@ -49,7 +49,7 @@ async function createPost() {
     content: postContent,
     timestamp: new Date(),
     author: username,
-    userID: localStorage.getItem("userID") || generateUserID(), // Ensures userID is present
+    userID: localStorage.getItem("userID") || generateUserID(),
   };
 
   try {
@@ -62,7 +62,7 @@ async function createPost() {
     alert("Post created successfully!");
     document.getElementById("postContent").value = "";
     imageUpload.value = "";
-    loadPosts();
+    loadPosts(); // Reload posts to show the new one
   } catch (error) {
     console.error("Error creating post:", error);
     alert("Failed to create post. Please try again.");
