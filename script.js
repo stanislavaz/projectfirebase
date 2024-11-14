@@ -85,23 +85,16 @@ function generateUserID() {
 
 // Function to load posts from Firestore
 async function loadPosts() {
-  try {
-    const currentUserID = localStorage.getItem("userID");
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    const postsContainer = document.getElementById("postsContainer");
-    postsContainer.innerHTML = ""; // Clear container before loading posts
+  const querySnapshot = await getDocs(collection(db, "posts"));
+  const postsContainer = document.getElementById("postsContainer");
+  postsContainer.innerHTML = "";
 
-    querySnapshot.forEach((doc) => {
-      const post = { id: doc.id, ...doc.data() };
-      if (post.userID === currentUserID) {
-        displayPost(post);
-      }
-    });
-  } catch (error) {
-    console.error("Error loading posts:", error);
-    alert("Failed to load posts.");
-  }
+  querySnapshot.forEach((doc) => {
+    const post = { id: doc.id, ...doc.data() };
+    displayPost(post); // No filtering based on userID
+  });
 }
+
 
 // Function to display a post in the DOM
 // Function to display a post in the DOM
