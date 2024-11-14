@@ -2,6 +2,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
+import { query, orderBy, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js"; // Ensure you're importing query and orderBy correctly
+import { Timestamp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";  // Import Timestamp 
 
 // Firebase configuration and initialization
 const firebaseConfig = {
@@ -47,9 +49,9 @@ async function createPost() {
 
   const newPost = {
     content: postContent,
-    timestamp: new Date(),
+    timestamp: Timestamp.fromDate(new Date()), // Ensure the timestamp is stored correctly
     author: username,
-    userID: localStorage.getItem("userID") || generateUserID(),
+    userID: localStorage.getItem("userID") || generateUserID(), // Ensures userID is present
   };
 
   try {
@@ -62,13 +64,12 @@ async function createPost() {
     alert("Post created successfully!");
     document.getElementById("postContent").value = "";
     imageUpload.value = "";
-    loadPosts(); // Reload posts to show the new one
+    loadPosts(); // Reload posts after new post is created
   } catch (error) {
     console.error("Error creating post:", error);
     alert("Failed to create post. Please try again.");
   }
 }
-
 // Function to upload an image to Firebase Storage
 async function uploadImage(file) {
   const storageRef = ref(storage, `images/${file.name}`);
