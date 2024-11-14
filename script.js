@@ -133,7 +133,7 @@ function displayPost(post) {
   `;
 
   if (post.imageUrl) {
-    postHTML += `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto; margin-top: 10px;">`;
+    postHTML += `<img src="${post.imageUrl}" alt="Bild hochladen" style="max-width: 100%; height: auto; margin-top: 10px;">`;
   }
 
   postHTML += `<button class="button deleteButton" data-id="${post.id}">Löschen</button>`;
@@ -144,7 +144,7 @@ function displayPost(post) {
   const deleteButton = postElement.querySelector(".deleteButton");
   if (deleteButton) {
     deleteButton.addEventListener("click", () => {
-      const confirmDelete = confirm("Sagen wir uns schon sobald Lebewohl?");
+      const confirmDelete = confirm("Sagen wir uns schon so bald Lebewohl?");
       if (confirmDelete) {
         deletePost(post.id);
       }
