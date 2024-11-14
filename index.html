@@ -21,11 +21,11 @@
       <h2>Hinterlass deiner/deinem Liebsten einen Gruss!</h2>
       <textarea id="postContent" placeholder="Ich denke an..."></textarea>
 
-      <!-- Change the label text here -->
-      <label for="imageUpload" id="uploadLabel">Ich will eine Postkarte ergänzen!</label>
+      <!-- Changed label to be inside the button -->
+      <button id="postButton">Ich will eine Postkarte ergänzen!</button>
+      
+      <!-- Keep the file input outside the button, as it is for file upload -->
       <input type="file" id="imageUpload" accept="image/*">
-
-      <button id="postButton">Absenden</button>
     </div>
     <div id="postsContainer"></div>
   </main>
