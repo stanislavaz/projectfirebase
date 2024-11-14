@@ -28,13 +28,20 @@ function getOrCreateUsername() {
   return username;
 }
 
+// Generate a unique user ID once if not present
+if (!localStorage.getItem("userID")) {
+  const userID = 'user_' + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem("userID", userID);
+}
+
+const currentUserID = localStorage.getItem("userID");
+
 // Function to create a new post
 async function createPost() {
   const postContent = document.getElementById("postContent").value;
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
   const username = getOrCreateUsername();
-  const userID = localStorage.getItem("userID");
 
   if (!postContent.trim()) {
     alert("Post content cannot be empty.");
@@ -45,7 +52,7 @@ async function createPost() {
     content: postContent,
     timestamp: new Date(),
     author: username,
-    userID: userID,
+    userID: currentUserID, // Use only initial userID
   };
 
   // Handle image upload if a file is provided
@@ -80,7 +87,6 @@ async function savePostToDatabase(post) {
 
 // Function to load posts from Firestore
 async function loadPosts() {
-  const currentUserID = localStorage.getItem("userID");
   const querySnapshot = await getDocs(collection(db, "posts"));
   const postsContainer = document.getElementById("postsContainer");
   postsContainer.innerHTML = "";
@@ -154,14 +160,5 @@ async function deletePost(postId) {
   }
 }
 
-// Generate a unique user ID once if not present
-if (!localStorage.getItem("userID")) {
-  const userID = 'user_' + Math.random().toString(36).substr(2, 9);
-  localStorage.setItem("userID", userID);
-}
-
 // Event listener for the Post button
-document.getElementById("postButton").addEventListener("click", createPost);
-
-// Load posts when the page is loaded
-window.onload = loadPosts;
+document.get
