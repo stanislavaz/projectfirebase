@@ -91,7 +91,7 @@ async function loadPosts() {
 
   querySnapshot.forEach((doc) => {
     const post = { id: doc.id, ...doc.data() };
-    displayPost(post); // No filtering based on userID
+    displayPost(post); // Display all posts without filtering by userID
   });
 }
 
