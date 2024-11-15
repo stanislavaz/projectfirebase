@@ -109,7 +109,11 @@ async function loadPosts() {
 // Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
-  postElement.classList.add("post");
+  postElement.classList.add("postcard");
+
+  // Randomly select a URL for the stamp from the provided set of URLs (replace with actual URLs)
+  const stampUrls = ["URL1.png", "URL2.png", "URL3.png"];
+  const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
 
   let formattedDate = "Date not available"; // Default if timestamp is not found
   if (post.timestamp) {
@@ -118,7 +122,7 @@ function displayPost(post) {
 
     if (timestamp instanceof Date && !isNaN(timestamp)) {
       // Format the timestamp
-      formattedDate = timestamp.toLocaleString('de-DE', {  // Format the date as per German locale
+      formattedDate = timestamp.toLocaleString('de-DE', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
@@ -130,21 +134,32 @@ function displayPost(post) {
     }
   }
 
+  // HTML structure for a postcard
   let postHTML = `
-    <h3>${post.author}</h3> 
+    <div class="stamp" style="background-image: url('${randomStamp}')"></div>
+    <div class="addressor">${post.author}</div>
     <p class="timestamp">${formattedDate}</p>
-    <p>${post.content}</p>
+    <div class="content">
+      <p>${post.content}</p>
   `;
 
+  // Include image if available
   if (post.imageUrl) {
-    postHTML += `<img src="${post.imageUrl}" alt="Bild hochladen" style="max-width: 100%; height: auto; margin-top: 10px;">`;
+    postHTML += `
+      <img src="${post.imageUrl}" alt="Postcard Image" style="max-width: 100%; height: auto; margin-top: 10px;">
+    `;
   }
 
-  postHTML += `<button class="button deleteButton" data-id="${post.id}">Löschen</button>`;
+  // Close content div and add delete button
+  postHTML += `
+    </div>
+    <button class="button deleteButton" data-id="${post.id}">Löschen</button>
+  `;
 
   postElement.innerHTML = postHTML;
   document.getElementById("postsContainer").appendChild(postElement);
 
+  // Add event listener for the delete button
   const deleteButton = postElement.querySelector(".deleteButton");
   if (deleteButton) {
     deleteButton.addEventListener("click", () => {
@@ -155,6 +170,7 @@ function displayPost(post) {
     });
   }
 }
+
 
 // Function to delete a post from Firestore
 async function deletePost(postId) {
