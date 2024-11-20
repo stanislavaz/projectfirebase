@@ -4,10 +4,10 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Initialize posts data from JSON file
-let posts = [];
 const postsFilePath = path.join(__dirname, 'posts.json');
 
+// Initialize posts data from JSON file
+let posts = [];
 try {
   const data = fs.readFileSync(postsFilePath, 'utf8');
   posts = JSON.parse(data).posts || [];
@@ -15,9 +15,9 @@ try {
   console.error("Error reading posts.json:", error);
 }
 
-// Serve static files (HTML, CSS, JS)
+// Middleware to parse JSON requests
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json()); // For parsing JSON requests
 
 // Endpoint to fetch all posts
 app.get('/posts', (req, res) => {
@@ -28,7 +28,7 @@ app.get('/posts', (req, res) => {
 app.post('/posts', (req, res) => {
   const newPost = req.body; // Get the new post from the request body
   posts.push(newPost); // Add the new post to the posts array
-  
+
   try {
     // Write updated posts to posts.json
     fs.writeFileSync(postsFilePath, JSON.stringify({ posts }, null, 2), 'utf8');
@@ -38,21 +38,6 @@ app.post('/posts', (req, res) => {
     res.status(500).send("Error saving post");
   }
 });
-
-// Endpoint to delete a post
-app.delete('/posts/:id', (req, res) => {
-  const postId = req.params.id;
-  posts = posts.filter(post => post.id !== postId); // Remove post with matching ID
-
-  try {
-    fs.writeFileSync(postsFilePath, JSON.stringify({ posts }, null, 2), 'utf8');
-    res.status(200).send("Post deleted.");
-  } catch (error) {
-    console.error("Error deleting post:", error);
-    res.status(500).send("Error deleting post");
-  }
-});
-
 
 // Start the server
 app.listen(port, () => {
