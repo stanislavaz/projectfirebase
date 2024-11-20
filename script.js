@@ -89,9 +89,9 @@ async function createPost() {
 
   const newPost = {
     content: postContent,
-    timestamp: Timestamp.fromDate(new Date()),
+    timestamp: new Date().toISOString(),
     author: username,
-    userID: localStorage.getItem("userID") || generateUserID()
+    userID: localStorage.getItem("userID") || generateUserID(),
   };
 
   try {
@@ -99,16 +99,25 @@ async function createPost() {
       newPost.imageUrl = await uploadImage(imageFile);
     }
 
-    await addDoc(collection(db, "posts"), newPost);
+    // Send the new post to the server
+    await fetch('/posts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newPost),
+    });
+
     alert("Im Briefkasten geht die Post ab!");
     document.getElementById("postContent").value = "";
     imageUpload.value = "";
-    loadPosts();
+    loadPosts(); // Refresh the posts container
   } catch (error) {
-    console.error("Na sowas... Vielleicht klappt's beim nächsten Mal!", error);
+    console.error("Na sowas...", error);
     alert("Kopf hoch! Das nächste Mal klappt es ganz sicher.");
   }
 }
+
 
 // Function to upload an image to Firebase Storage
 async function uploadImage(file) {
@@ -127,20 +136,21 @@ function generateUserID() {
 
 // Function to load posts from Firestore in chronological order (newest first)
 async function loadPosts() {
-  const postsQuery = query(
-    collection(db, "posts"),
-    orderBy("timestamp", "desc")
-  );
+  try {
+    const response = await fetch('/posts'); // Fetch all posts from the server endpoint
+    const data = await response.json();
+    const postsContainer = document.getElementById("postsContainer");
+    postsContainer.innerHTML = ""; // Clear previous posts
 
-  const querySnapshot = await getDocs(postsQuery);
-  const postsContainer = document.getElementById("postsContainer");
-  postsContainer.innerHTML = "";
-
-  querySnapshot.forEach((doc) => {
-    const post = { id: doc.id, ...doc.data() };
-    displayPost(post);
-  });
+    data.posts.forEach(post => {
+      displayPost(post); // Use the existing displayPost function to render posts
+    });
+  } catch (error) {
+    console.error("Error loading posts:", error);
+    alert("Fehler beim Laden der Posts.");
+  }
 }
+
 
 // Function to display a post in the DOM
 function displayPost(post) {
@@ -205,12 +215,20 @@ function displayPost(post) {
 // Function to delete a post from Firestore
 async function deletePost(postId) {
   try {
-    await deleteDoc(doc(db, "posts", postId));
-    alert("Die schöne Nachricht behalt ich im Herz, gewiss sei dir kein Trennungsschmerz!");
-    loadPosts();
+    const response = await fetch(`/posts/${postId}`, {
+      method: 'DELETE',
+    });
+
+    if (response.ok) {
+      alert("Die schöne Nachricht behalt ich im Herz, gewiss sei dir kein Trennungsschmerz!");
+      loadPosts(); // Refresh the posts container
+    } else {
+      console.error("Hoppla! Dann sind wir wohl noch nicht Abschiedsreif!", response.status);
+      alert("Noch eine Weile bleib ich bei dir!");
+    }
   } catch (error) {
-    console.error("Hoppla! Dann sind wir wohl noch nicht Abschiedsreif!:", error);
-    alert("Noch eine Weile bleib ich bei dir!");
+    console.error("Fehler beim Löschen des Beitrags:", error);
+    alert("Fehler beim Löschen des Beitrags.");
   }
 }
 
