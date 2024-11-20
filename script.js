@@ -1,5 +1,4 @@
 // Firebase imports
-// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
 import {
   getFirestore,
@@ -33,6 +32,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
 // Array for stamp URLs (update these with your own URLs)
 const stampUrls = [
   "https://i.postimg.cc/Yq5R9Htz/image-6.png",
@@ -59,10 +59,11 @@ const stampUrls = [
   "https://i.postimg.cc/PJ4Dgj9b/image-33.png"
 ];
 
+// Function to prompt for a username and store it in localStorage
 function getOrCreateUsername() {
   let username = localStorage.getItem("username");
   if (!username) {
-    username = prompt("Oh weh! Wir haben uns einander doch noch gar nicht vorgestellt...");
+    username = prompt("Oh weh! Wir haben uns einander doch noch gar nicht vorgestellt... Von der sicheren Anonymität der Namenlosen können die Namhaften nur träumen!");
     if (username) {
       localStorage.setItem("username", username);
     } else {
@@ -79,6 +80,7 @@ async function createPost() {
   const imageUpload = document.getElementById("imageUpload");
   const imageFile = imageUpload.files[0];
   const username = getOrCreateUsername();
+
   if (!username || !postContent) {
     alert("Der Name und seine Bedeutung sind allein schon jeden Preis wert, den du willst.");
     return;
@@ -87,7 +89,8 @@ async function createPost() {
   const newPost = {
     content: postContent,
     timestamp: Timestamp.fromDate(new Date()),
-    author: username
+    author: username,
+    userID: localStorage.getItem("userID") || generateUserID()
   };
 
   try {
@@ -95,7 +98,7 @@ async function createPost() {
       newPost.imageUrl = await uploadImage(imageFile);
     }
 
-  await addDoc(collection(db, "posts"), newPost);
+    await addDoc(collection(db, "posts"), newPost);
     alert("Im Briefkasten geht die Post ab!");
     document.getElementById("postContent").value = "";
     imageUpload.value = "";
@@ -106,12 +109,12 @@ async function createPost() {
   }
 }
 
-
 // Function to upload an image to Firebase Storage
 async function uploadImage(file) {
   const storageRef = ref(storage, `images/${file.name}`);
   await uploadBytes(storageRef, file);
-  return await getDownloadURL(storageRef);
+  const imageUrl = await getDownloadURL(storageRef);
+  return imageUrl;
 }
 
 // Generates a userID if none exists
@@ -123,23 +126,19 @@ function generateUserID() {
 
 // Function to load posts from Firestore in chronological order (newest first)
 async function loadPosts() {
-  try {
-    const postsQuery = query(
-      collection(db, "posts"),
-      orderBy("timestamp", "desc")
-    );
+  const postsQuery = query(
+    collection(db, "posts"),
+    orderBy("timestamp", "desc")
+  );
 
-    const querySnapshot = await getDocs(postsQuery);
-    const postsContainer = document.getElementById("postsContainer");
-    postsContainer.innerHTML = "";
+  const querySnapshot = await getDocs(postsQuery);
+  const postsContainer = document.getElementById("postsContainer");
+  postsContainer.innerHTML = "";
 
-    querySnapshot.forEach((doc) => {
-      const post = { id: doc.id, ...doc.data() };
-      displayPost(post);
-    });
-  } catch (error) {
-    console.error("Fehler beim Laden der Posts:", error);
-  }
+  querySnapshot.forEach((doc) => {
+    const post = { id: doc.id, ...doc.data() };
+    displayPost(post);
+  });
 }
 
 // Function to display a post in the DOM
@@ -149,9 +148,24 @@ function displayPost(post) {
 
   const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
 
-  const formattedDate = post.timestamp
-    ? new Date(post.timestamp.seconds * 1000).toLocaleString("de-DE")
-    : "Unbekanntes Datum";
+  let formattedDate = "Date not available";
+  if (post.timestamp) {
+    const timestamp =
+      post.timestamp instanceof Timestamp
+        ? post.timestamp.toDate()
+        : new Date(post.timestamp.seconds * 1000);
+    if (timestamp instanceof Date && !isNaN(timestamp)) {
+      formattedDate = timestamp.toLocaleString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      });
+    }
+  }
 
   postElement.innerHTML = `
     <div class="postcard-border">
@@ -171,9 +185,32 @@ function displayPost(post) {
         </div>
       </div>
     </div>
+    <button class="button deleteButton" data-id="${post.id}">Löschen</button>
   `;
 
   document.getElementById("postsContainer").appendChild(postElement);
+
+  const deleteButton = postElement.querySelector(".deleteButton");
+  if (deleteButton) {
+    deleteButton.addEventListener("click", () => {
+      const confirmDelete = confirm("Sagen wir uns schon so bald Lebewohl?");
+      if (confirmDelete) {
+        deletePost(post.id);
+      }
+    });
+  }
+}
+
+// Function to delete a post from Firestore
+async function deletePost(postId) {
+  try {
+    await deleteDoc(doc(db, "posts", postId));
+    alert("Die schöne Nachricht behalt ich im Herz, gewiss sei dir kein Trennungsschmerz!");
+    loadPosts();
+  } catch (error) {
+    console.error("Hoppla! Dann sind wir wohl noch nicht Abschiedsreif!:", error);
+    alert("Noch eine Weile bleib ich bei dir!");
+  }
 }
 
 // Event listener for the Post button
