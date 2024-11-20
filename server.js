@@ -39,6 +39,21 @@ app.post('/posts', (req, res) => {
   }
 });
 
+// Endpoint to delete a post
+app.delete('/posts/:id', (req, res) => {
+  const postId = req.params.id;
+  posts = posts.filter(post => post.id !== postId); // Remove post with matching ID
+
+  try {
+    fs.writeFileSync(postsFilePath, JSON.stringify({ posts }, null, 2), 'utf8');
+    res.status(200).send("Post deleted.");
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).send("Error deleting post");
+  }
+});
+
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
