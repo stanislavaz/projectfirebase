@@ -35,8 +35,23 @@ const storage = getStorage(app);
 
 // Array for stamp URLs (update these with your own URLs)
 const stampUrls = [
-  "https://example.com/stamp1.png",
-  "https://example.com/stamp2.png",
+  "https://i.postimg.cc/Yq5R9Htz/image-6.png",
+  "https://i.postimg.cc/y8yzyBY7/image-7.png",
+  "https://i.postimg.cc/TYXdVtqq/image-13.png",
+  "https://i.postimg.cc/VvXb75V7/image-15.png",
+  "https://i.postimg.cc/wBJyx169/image-16.png",
+  "https://i.postimg.cc/T2Zspwvp/image-17.png",
+  "https://i.postimg.cc/Xvf5cspR/image-18.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png"
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
   "https://example.com/stamp3.png"
 ];
 
