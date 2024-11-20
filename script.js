@@ -111,17 +111,14 @@ function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("postcard");
 
-  // Randomly select a URL for the stamp from the provided set of URLs (replace with actual URLs)
-  const stampUrls = ["URL1.png", "URL2.png", "URL3.png"];
+  // Randomly select a URL for the stamp from your dataset (replace with your own URLs)
+  const stampUrls = ["stamp1.png", "stamp2.png", "stamp3.png"]; // Add actual URLs here
   const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
 
-  let formattedDate = "Date not available"; // Default if timestamp is not found
+  let formattedDate = "Date not available";
   if (post.timestamp) {
-    // Ensure timestamp is a Firebase Timestamp object and convert it to Date
     const timestamp = post.timestamp instanceof Timestamp ? post.timestamp.toDate() : new Date(post.timestamp.seconds * 1000);
-
     if (timestamp instanceof Date && !isNaN(timestamp)) {
-      // Format the timestamp
       formattedDate = timestamp.toLocaleString('de-DE', {
         day: '2-digit',
         month: '2-digit',
@@ -129,37 +126,31 @@ function displayPost(post) {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false // 24-hour format
+        hour12: false
       });
     }
   }
 
-  // HTML structure for a postcard
-  let postHTML = `
-    <div class="stamp" style="background-image: url('${randomStamp}')"></div>
-    <div class="addressor">${post.author}</div>
-    <p class="timestamp">${formattedDate}</p>
-    <div class="content">
-      <p>${post.content}</p>
-  `;
-
-  // Include image if available
-  if (post.imageUrl) {
-    postHTML += `
-      <img src="${post.imageUrl}" alt="Postcard Image" style="max-width: 100%; height: auto; margin-top: 10px;">
-    `;
-  }
-
-  // Close content div and add delete button
-  postHTML += `
+  // HTML structure for the postcard
+  postElement.innerHTML = `
+    <div class="postcard-border">
+      <div class="postcard-content">
+        <div class="stamp" style="background-image: url('${randomStamp}');"></div>
+        <div class="addressor">
+          <strong>${post.author}</strong>
+          <p class="timestamp">${formattedDate}</p>
+        </div>
+        <div class="message">
+          <p>${post.content}</p>
+          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ""}
+        </div>
+      </div>
     </div>
     <button class="button deleteButton" data-id="${post.id}">Löschen</button>
   `;
 
-  postElement.innerHTML = postHTML;
   document.getElementById("postsContainer").appendChild(postElement);
 
-  // Add event listener for the delete button
   const deleteButton = postElement.querySelector(".deleteButton");
   if (deleteButton) {
     deleteButton.addEventListener("click", () => {
