@@ -1,9 +1,22 @@
 // Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
-import { query, orderBy, getDocs as getFirestoreDocs, collection as getCollection } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js"; // Ensure you're importing query and orderBy correctly
-import { Timestamp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";  // Import Timestamp 
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  Timestamp
+} from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
 
 // Firebase configuration and initialization
 const firebaseConfig = {
@@ -19,6 +32,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
+// Array for stamp URLs (update these with your own URLs)
+const stampUrls = [
+  "https://example.com/stamp1.png",
+  "https://example.com/stamp2.png",
+  "https://example.com/stamp3.png"
+];
 
 // Function to prompt for a username and store it in localStorage
 function getOrCreateUsername() {
@@ -36,11 +56,10 @@ function getOrCreateUsername() {
 }
 
 // Function to create a new post
-// Function to create a new post
 async function createPost() {
   const postContent = document.getElementById("postContent").value.trim();
   const imageUpload = document.getElementById("imageUpload");
-  const imageFile = imageUpload.files[0];  // Getting the file from input
+  const imageFile = imageUpload.files[0];
   const username = getOrCreateUsername();
 
   if (!username || !postContent) {
@@ -50,23 +69,21 @@ async function createPost() {
 
   const newPost = {
     content: postContent,
-    timestamp: Timestamp.fromDate(new Date()), // Store timestamp as Firebase Timestamp
+    timestamp: Timestamp.fromDate(new Date()),
     author: username,
-    userID: localStorage.getItem("userID") || generateUserID(), // Ensures userID is present
+    userID: localStorage.getItem("userID") || generateUserID()
   };
 
   try {
-    // Handle image upload if an image file is provided
     if (imageFile) {
       newPost.imageUrl = await uploadImage(imageFile);
     }
 
-    // Add the new post document to Firestore
     await addDoc(collection(db, "posts"), newPost);
     alert("Im Briefkasten geht die Post ab!");
     document.getElementById("postContent").value = "";
     imageUpload.value = "";
-    loadPosts(); // Reload posts after new post is created
+    loadPosts();
   } catch (error) {
     console.error("Na sowas... Vielleicht klappt's beim nächsten Mal!", error);
     alert("Kopf hoch! Das nächste Mal klappt es ganz sicher.");
@@ -75,16 +92,15 @@ async function createPost() {
 
 // Function to upload an image to Firebase Storage
 async function uploadImage(file) {
-  const storageRef = ref(storage, `images/${file.name}`);  // Firebase Storage path
-  await uploadBytes(storageRef, file);  // Upload the image file
-  const imageUrl = await getDownloadURL(storageRef);  // Get the download URL of the uploaded image
-  return imageUrl;  // Return the URL to associate with the post
+  const storageRef = ref(storage, `images/${file.name}`);
+  await uploadBytes(storageRef, file);
+  const imageUrl = await getDownloadURL(storageRef);
+  return imageUrl;
 }
-
 
 // Generates a userID if none exists
 function generateUserID() {
-  const userID = 'user_' + Math.random().toString(36).substr(2, 9);
+  const userID = "user_" + Math.random().toString(36).substr(2, 9);
   localStorage.setItem("userID", userID);
   return userID;
 }
@@ -93,16 +109,16 @@ function generateUserID() {
 async function loadPosts() {
   const postsQuery = query(
     collection(db, "posts"),
-    orderBy("timestamp", "desc") // Orders posts by timestamp in descending order
+    orderBy("timestamp", "desc")
   );
 
   const querySnapshot = await getDocs(postsQuery);
   const postsContainer = document.getElementById("postsContainer");
-  postsContainer.innerHTML = ""; // Clear existing posts
+  postsContainer.innerHTML = "";
 
   querySnapshot.forEach((doc) => {
     const post = { id: doc.id, ...doc.data() };
-    displayPost(post); // Display all posts in chronological order
+    displayPost(post);
   });
 }
 
@@ -111,27 +127,27 @@ function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("postcard");
 
-  // Randomly select a URL for the stamp from your dataset (replace with your own URLs)
-  const stampUrls = ["stamp1.png", "stamp2.png", "stamp3.png"]; // Add actual URLs here
   const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
 
   let formattedDate = "Date not available";
   if (post.timestamp) {
-    const timestamp = post.timestamp instanceof Timestamp ? post.timestamp.toDate() : new Date(post.timestamp.seconds * 1000);
+    const timestamp =
+      post.timestamp instanceof Timestamp
+        ? post.timestamp.toDate()
+        : new Date(post.timestamp.seconds * 1000);
     if (timestamp instanceof Date && !isNaN(timestamp)) {
-      formattedDate = timestamp.toLocaleString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
+      formattedDate = timestamp.toLocaleString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
         hour12: false
       });
     }
   }
 
-  // HTML structure for the postcard
   postElement.innerHTML = `
     <div class="postcard-border">
       <div class="postcard-content">
@@ -142,7 +158,11 @@ function displayPost(post) {
         </div>
         <div class="message">
           <p>${post.content}</p>
-          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ""}
+          ${
+            post.imageUrl
+              ? `<img src="${post.imageUrl}" alt="Postcard Image">`
+              : ""
+          }
         </div>
       </div>
     </div>
@@ -161,7 +181,6 @@ function displayPost(post) {
     });
   }
 }
-
 
 // Function to delete a post from Firestore
 async function deletePost(postId) {
