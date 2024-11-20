@@ -89,42 +89,51 @@ async function createPost() {
 
   const newPost = {
     content: postContent,
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString(), // Store timestamp as string
     author: username,
-    userID: localStorage.getItem("userID") || generateUserID(),
+    userID: localStorage.getItem("userID") || generateUserID()
   };
 
   try {
+    // Optionally handle image upload here and add imageUrl to newPost
     if (imageFile) {
       newPost.imageUrl = await uploadImage(imageFile);
     }
 
-    // Send the new post to the server
-    await fetch('/posts', {
+    const response = await fetch('/posts', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(newPost),
+      body: JSON.stringify(newPost)
     });
 
-    alert("Im Briefkasten geht die Post ab!");
-    document.getElementById("postContent").value = "";
-    imageUpload.value = "";
-    loadPosts(); // Refresh the posts container
+    if (response.ok) {
+      const savedPost = await response.json();
+      displayPost(savedPost); // Display the newly created post
+      alert("Im Briefkasten geht die Post ab!");
+      document.getElementById("postContent").value = '';
+      imageUpload.value = '';
+    } else {
+      alert("Error creating post");
+    }
   } catch (error) {
-    console.error("Na sowas...", error);
+    console.error("Error posting:", error);
     alert("Kopf hoch! Das nächste Mal klappt es ganz sicher.");
   }
 }
 
-
 // Function to upload an image to Firebase Storage
 async function uploadImage(file) {
-  const storageRef = ref(storage, `images/${file.name}`);
-  await uploadBytes(storageRef, file);
-  const imageUrl = await getDownloadURL(storageRef);
-  return imageUrl;
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await fetch('/upload', { method: 'POST', body: formData });
+  if (response.ok) {
+    const data = await response.json();
+    return data.imageUrl;
+  }
+  return null;
 }
 
 // Generates a userID if none exists
@@ -137,46 +146,25 @@ function generateUserID() {
 // Function to load posts from Firestore in chronological order (newest first)
 async function loadPosts() {
   try {
-    const response = await fetch('/posts'); // Fetch all posts from the server endpoint
+    const response = await fetch('/posts');
     const data = await response.json();
     const postsContainer = document.getElementById("postsContainer");
-    postsContainer.innerHTML = ""; // Clear previous posts
+    postsContainer.innerHTML = '';
 
     data.posts.forEach(post => {
-      displayPost(post); // Use the existing displayPost function to render posts
+      displayPost(post);
     });
   } catch (error) {
-    console.error("Error loading posts:", error);
-    alert("Fehler beim Laden der Posts.");
+    console.error('Error loading posts:', error);
   }
 }
-
 
 // Function to display a post in the DOM
 function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("postcard");
 
-  const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
-
-  let formattedDate = "Date not available";
-  if (post.timestamp) {
-    const timestamp =
-      post.timestamp instanceof Timestamp
-        ? post.timestamp.toDate()
-        : new Date(post.timestamp.seconds * 1000);
-    if (timestamp instanceof Date && !isNaN(timestamp)) {
-      formattedDate = timestamp.toLocaleString("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
-      });
-    }
-  }
+  let formattedDate = new Date(post.timestamp).toLocaleString("de-DE");
 
   postElement.innerHTML = `
     <div class="postcard-border">
@@ -188,28 +176,13 @@ function displayPost(post) {
         </div>
         <div class="message">
           <p>${post.content}</p>
-          ${
-            post.imageUrl
-              ? `<img src="${post.imageUrl}" alt="Postcard Image">`
-              : ""
-          }
+          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ''}
         </div>
       </div>
     </div>
-    <button class="button deleteButton" data-id="${post.id}">Löschen</button>
   `;
-
+  
   document.getElementById("postsContainer").appendChild(postElement);
-
-  const deleteButton = postElement.querySelector(".deleteButton");
-  if (deleteButton) {
-    deleteButton.addEventListener("click", () => {
-      const confirmDelete = confirm("Sagen wir uns schon so bald Lebewohl?");
-      if (confirmDelete) {
-        deletePost(post.id);
-      }
-    });
-  }
 }
 
 // Function to delete a post from Firestore
@@ -235,5 +208,5 @@ async function deletePost(postId) {
 // Event listener for the Post button
 document.getElementById("postButton").addEventListener("click", createPost);
 
-// Load posts when the page is loaded
+// Load posts when the page loads
 window.onload = loadPosts;
