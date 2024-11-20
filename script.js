@@ -1,3 +1,4 @@
+
 // Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
 import {
@@ -50,13 +51,13 @@ const stampUrls = [
   "https://i.postimg.cc/bvPdxMs1/image-24.png"
   "https://i.postimg.cc/MpVmZhCB/image-25.png",
   "https://i.postimg.cc/v871BGTb/image-26.png",
-  "https://i.postimg.cc/1XVJG4jC/image-27.png",
-  "https://i.postimg.cc/fWHVXBcr/image-28.png",
-  "https://i.postimg.cc/VNd8xWrd/image-29.png",
-  "https://i.postimg.cc/wTGFW5pW/image-30.png",
-  "https://i.postimg.cc/3JF0NYL2/image-31.png",
-  "https://i.postimg.cc/yxY4ThH1/image-32.png",
-  "https://i.postimg.cc/PJ4Dgj9b/image-33.png"
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png",
+  "https://example.com/stamp3.png"
 ];
 
 // Function to prompt for a username and store it in localStorage
