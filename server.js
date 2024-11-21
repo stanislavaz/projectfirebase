@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
-// Path to the posts JSON file
+// Path to the posts JSON file 
 const postsFilePath = path.join(__dirname, 'posts.json');
 
 // Middleware
