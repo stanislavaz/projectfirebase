@@ -100,7 +100,7 @@ async function createPost() {
     // Create new post object
     const newPost = {
       content: postContent,
-      timestamp: Timestamp.now(),
+      timestamp: Timestamp.now(), // Firestore timestamp
       author: username,
       imageUrl: imageUrl || null,
     };
@@ -114,7 +114,7 @@ async function createPost() {
     loadPosts(); // Reload posts
   } catch (error) {
     console.error("Error creating post:", error);
-    alert("Fehler beim Erstellen des Beitrags.");
+    alert("Fehler beim Erstellen des Beitrags. Überprüfe die Verbindung.");
   }
 }
 
@@ -141,24 +141,24 @@ function generateUserID() {
 // Function to load posts from Firestore in chronological order (newest first)
 async function loadPosts() {
   try {
-    // Query Firestore for posts
     const postsCollection = collection(db, "posts");
-    const q = query(postsCollection, orderBy("timestamp", "desc")); // Order posts by timestamp (newest first)
+    const q = query(postsCollection, orderBy("timestamp", "desc")); // Newest first
     const querySnapshot = await getDocs(q);
 
     const postsContainer = document.getElementById("postsContainer");
     postsContainer.innerHTML = ''; // Clear existing posts
 
-    // Loop through Firestore documents and display each post
     querySnapshot.forEach((doc) => {
       const postData = doc.data();
+      postData.id = doc.id; // Save document ID for potential deletions
       displayPost(postData);
     });
   } catch (error) {
     console.error("Error loading posts:", error);
-    alert("Fehler beim Laden der Beiträge.");
+    alert("Fehler beim Laden der Beiträge. Überprüfe die Verbindung.");
   }
 }
+
 
 // Function to display a post in the DOM
 function displayPost(post) {
@@ -167,8 +167,8 @@ function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("postcard");
 
-  let formattedDate = post.timestamp.toDate
-    ? post.timestamp.toDate().toLocaleString("de-DE") // Convert Firestore timestamp
+  let formattedDate = post.timestamp?.toDate
+    ? post.timestamp.toDate().toLocaleString("de-DE") // Firestore timestamp
     : new Date(post.timestamp).toLocaleString("de-DE");
 
   postElement.innerHTML = `
@@ -176,7 +176,7 @@ function displayPost(post) {
       <div class="postcard-content">
         <div class="stamp" style="background-image: url('${randomStamp}');"></div>
         <div class="addressor">
-          <strong>${post.author}</strong>
+          <strong>${post.author || "Anonym"}</strong>
           <p class="timestamp">${formattedDate}</p>
         </div>
         <div class="message">
@@ -189,6 +189,7 @@ function displayPost(post) {
 
   document.getElementById("postsContainer").appendChild(postElement);
 }
+
 
 async function deletePost(postId) {
   try {
