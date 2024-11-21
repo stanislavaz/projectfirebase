@@ -89,27 +89,18 @@ const overlayImages = [
 
 // Function to randomly select a stamp overlay
 function setRandomOverlay() {
-  // Get all postcards
-  const postcards = document.querySelectorAll('.postcard');
-
-  postcards.forEach(postcard => {
-    // Create a new div for the stamp overlay
-    const overlay = document.createElement('div');
-    overlay.classList.add('stamp-overlay');
-
-    // Randomly choose a background image from the overlayImages array
-    const randomImage = overlayImages[Math.floor(Math.random() * overlayImages.length)];
+  const postcards = document.querySelectorAll(".postcard");
+  postcards.forEach((postcard) => {
+    const overlay = document.createElement("div");
+    overlay.classList.add("stamp-overlay");
+    const randomImage =
+      overlayImages[Math.floor(Math.random() * overlayImages.length)];
     overlay.style.backgroundImage = `url(${randomImage})`;
-
-    // Append the overlay to the postcard
     postcard.appendChild(overlay);
   });
 }
 
-// Call the function to set the random overlay
-document.addEventListener('DOMContentLoaded', setRandomOverlay);
-
-// Prompt for username and store in localStorage
+// Prompt for username and save in localStorage
 function getOrCreateUsername() {
   let username = localStorage.getItem("username");
   if (!username) {
@@ -149,14 +140,14 @@ async function createPost() {
       content: postContent,
       timestamp: Timestamp.now(),
       author: username,
-      imageUrl: imageUrl || null
+      imageUrl: imageUrl || null,
     };
 
     await addDoc(collection(db, "posts"), newPost);
 
     alert("Beitrag erfolgreich erstellt!");
-    document.getElementById("postContent").value = '';
-    imageUpload.value = '';
+    document.getElementById("postContent").value = "";
+    imageUpload.value = "";
     loadPosts();
   } catch (error) {
     console.error("Error creating post:", error);
@@ -172,7 +163,75 @@ async function loadPosts() {
     const querySnapshot = await getDocs(q);
 
     const postsContainer = document.getElementById("postsContainer");
-    postsContainer.innerHTML = ''; // Clear the container before loading new posts
+    postsContainer.innerHTML = ""; // Clear previous posts
 
     querySnapshot.forEach((doc) => {
-      const
+      const postData = doc.data();
+      displayPost(postData);
+    });
+
+    setRandomOverlay(); // Add random overlays to posts
+  } catch (error) {
+    console.error("Error loading posts:", error);
+    alert("Fehler beim Laden der Beiträge.");
+  }
+}
+
+// Display a single post
+function displayPost(post) {
+  const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
+  const postElement = document.createElement("div");
+  postElement.classList.add("postcard");
+
+  let formattedDate = "Unbekanntes Datum";
+  if (post.timestamp && post.timestamp.toDate) {
+    formattedDate = post.timestamp.toDate().toLocaleDateString("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const formattedTime = post.timestamp.toDate().toLocaleTimeString("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    formattedDate += `<br>${formattedTime}`; // Add time below the date
+  }
+
+  postElement.innerHTML = `
+    <div class="postcard-border">
+      <div class="postcard-content">
+        <div class="stamp" style="background-image: url('${randomStamp}');"></div>
+        <div class="post-header">
+          <strong class="author">${post.author || "Anonym"}</strong>
+          <p class="timestamp">${formattedDate}</p>
+        </div>
+        <div class="message">
+          <p>${post.content}</p>
+          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ""}
+        </div>
+        <div class="post-footer">
+          <p>Mit Liebe geschrieben</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const postsContainer = document.getElementById("postsContainer");
+  postsContainer.appendChild(postElement);
+}
+
+// Delete a post
+async function deletePost(postId) {
+  try {
+    await deleteDoc(doc(db, "posts", postId));
+    alert("Beitrag gelöscht!");
+    loadPosts();
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    alert("Fehler beim Löschen des Beitrags.");
+  }
+}
+
+// Attach event listeners
+document.getElementById("postButton").addEventListener("click", createPost);
+window.onload = loadPosts;
