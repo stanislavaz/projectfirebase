@@ -77,7 +77,29 @@ const stampUrls = [
   "https://i.postimg.cc/ZY7dDHJQ/image-52.png",
   "https://i.postimg.cc/fycTZM65/image-53.png",
   "https://i.postimg.cc/52MkKL5Z/image-54.png",
-  "https://i.postimg.cc/mrjqHkHK/image-55.png"
+  "https://i.postimg.cc/mrjqHkHK/image-55.png",
+  "https://i.postimg.cc/bJ3p182C/image-71.png",
+  "https://i.postimg.cc/t4vX19WB/image-72.png",
+  "https://i.postimg.cc/15YTwX7V/image-73.png",
+  "https://i.postimg.cc/Bv3CKG31/image-74.png",
+  "https://i.postimg.cc/CxrqFT1g/image-75.png",
+  "https://i.postimg.cc/fTZ2dXvb/image-76.png",
+  "https://i.postimg.cc/3Jsw98dW/image-77.png",
+  "https://i.postimg.cc/Jhvm7KZ0/image-78.png",
+  "https://i.postimg.cc/FR4WxLQG/image-80.png",
+  "https://i.postimg.cc/VsH9fCHT/image-81.png",
+  "https://i.postimg.cc/BnyQtqGJ/image-82.png",
+  "https://i.postimg.cc/XNGM7wYB/image-83.png",
+  "https://i.postimg.cc/TwQnzyZR/image-84.png",
+  "https://i.postimg.cc/nL3zZvcw/image-85.png",
+  "https://i.postimg.cc/SNcvn4Yc/image-86.png","
+  "https://i.postimg.cc/yx0C6ZzZ/image-87.png",
+  "https://i.postimg.cc/VN0GccwS/image-88.png",
+  "https://i.postimg.cc/J4tjF5M0/image-89.png",
+  "https://i.postimg.cc/MH9nWHJq/image-90.png",
+  "https://i.postimg.cc/Dwn7CF9c/image-91.png",
+  "https://i.postimg.cc/RVPgYL8b/image-92.png",
+  "https://i.postimg.cc/QCvHBPCy/image-93.png"
 ];
 
 // Array of additional image URLs for overlay stamps
