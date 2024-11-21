@@ -83,43 +83,38 @@ async function createPost() {
   const username = getOrCreateUsername();
 
   if (!username || !postContent) {
-    alert("Der Name und seine Bedeutung sind allein schon jeden Preis wert, den du willst.");
+    alert("Bitte gib deinen Namen und den Inhalt des Beitrags an.");
     return;
   }
 
-  const newPost = {
-    content: postContent,
-    timestamp: new Date().toISOString(), // Store timestamp as string
-    author: username,
-    userID: localStorage.getItem("userID") || generateUserID()
-  };
-
   try {
-    // Optionally handle image upload here and add imageUrl to newPost
+    let imageUrl = null;
+
+    // Upload image if available
     if (imageFile) {
-      newPost.imageUrl = await uploadImage(imageFile);
+      const imageRef = ref(storage, `post_images/${Date.now()}_${imageFile.name}`);
+      await uploadBytes(imageRef, imageFile);
+      imageUrl = await getDownloadURL(imageRef);
     }
 
-    const response = await fetch('/posts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newPost)
-    });
+    // Create new post object
+    const newPost = {
+      content: postContent,
+      timestamp: Timestamp.now(),
+      author: username,
+      imageUrl: imageUrl || null,
+    };
 
-    if (response.ok) {
-      const savedPost = await response.json();
-      displayPost(savedPost); // Display the newly created post
-      alert("Im Briefkasten geht die Post ab!");
-      document.getElementById("postContent").value = '';
-      imageUpload.value = '';
-    } else {
-      alert("Error creating post");
-    }
+    // Save post to Firestore
+    await addDoc(collection(db, "posts"), newPost);
+
+    alert("Beitrag erfolgreich erstellt!");
+    document.getElementById("postContent").value = '';
+    imageUpload.value = '';
+    loadPosts(); // Reload posts
   } catch (error) {
-    console.error("Error posting:", error);
-    alert("Kopf hoch! Das nächste Mal klappt es ganz sicher.");
+    console.error("Error creating post:", error);
+    alert("Fehler beim Erstellen des Beitrags.");
   }
 }
 
@@ -146,25 +141,35 @@ function generateUserID() {
 // Function to load posts from Firestore in chronological order (newest first)
 async function loadPosts() {
   try {
-    const response = await fetch('/posts');
-    const data = await response.json();
-    const postsContainer = document.getElementById("postsContainer");
-    postsContainer.innerHTML = '';
+    // Query Firestore for posts
+    const postsCollection = collection(db, "posts");
+    const q = query(postsCollection, orderBy("timestamp", "desc")); // Order posts by timestamp (newest first)
+    const querySnapshot = await getDocs(q);
 
-    data.posts.forEach(post => {
-      displayPost(post);
+    const postsContainer = document.getElementById("postsContainer");
+    postsContainer.innerHTML = ''; // Clear existing posts
+
+    // Loop through Firestore documents and display each post
+    querySnapshot.forEach((doc) => {
+      const postData = doc.data();
+      displayPost(postData);
     });
   } catch (error) {
-    console.error('Error loading posts:', error);
+    console.error("Error loading posts:", error);
+    alert("Fehler beim Laden der Beiträge.");
   }
 }
 
 // Function to display a post in the DOM
 function displayPost(post) {
+  const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
+
   const postElement = document.createElement("div");
   postElement.classList.add("postcard");
 
-  let formattedDate = new Date(post.timestamp).toLocaleString("de-DE");
+  let formattedDate = post.timestamp.toDate
+    ? post.timestamp.toDate().toLocaleString("de-DE") // Convert Firestore timestamp
+    : new Date(post.timestamp).toLocaleString("de-DE");
 
   postElement.innerHTML = `
     <div class="postcard-border">
@@ -181,11 +186,10 @@ function displayPost(post) {
       </div>
     </div>
   `;
-  
+
   document.getElementById("postsContainer").appendChild(postElement);
 }
 
-// Function to delete a post from Firestore
 async function deletePost(postId) {
   try {
     const response = await fetch(`/posts/${postId}`, {
@@ -210,3 +214,4 @@ document.getElementById("postButton").addEventListener("click", createPost);
 
 // Load posts when the page loads
 window.onload = loadPosts;
+// Function to delete a post from Firestore
