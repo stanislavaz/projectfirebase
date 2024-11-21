@@ -23,22 +23,27 @@ main {
 /* Overall Postcard Styling */
 .postcard {
   position: relative;
+  width: 550px; /* Width set to 148mm in pixels */
+  height: 390px; /* Height set to 105mm in pixels */
   border: 2px solid #ccc;
   border-radius: 10px;
   padding: 20px;
-  max-width: 600px;
-  margin: 20px auto;
   background: #fdf9e2; /* Light cream color resembling paper */
   font-family: 'Courier New', Courier, monospace;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  overflow: hidden; /* Ensure no content spills outside */
+  box-sizing: border-box; /* Include padding in the dimensions */
+  margin: 20px auto;
 }
 
 .postcard-border {
   border: 1px dashed #888; /* Dashed border like old postcards */
   padding: 15px;
+  height: 100%; /* Fit inside postcard */
+  box-sizing: border-box;
 }
 
-/* Stamp Style */
+/* Stamp Styling */
 .postcard .stamp {
   position: absolute;
   top: 15px;
@@ -75,6 +80,9 @@ main {
 .postcard .message {
   line-height: 1.6;
   font-size: 16px;
+  overflow: hidden; /* Ensure the text doesn't spill outside */
+  word-wrap: break-word; /* Handle long words */
+  margin-bottom: 20px; /* Space from footer */
 }
 
 .postcard .message img {
@@ -87,7 +95,6 @@ main {
 .postcard .post-footer {
   text-align: center;
   font-style: italic;
-  margin-top: 20px;
   color: #444;
 }
 
@@ -135,4 +142,32 @@ img {
   max-width: 100%;
   height: auto;
   margin-top: 10px;
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 600px) {
+  .postcard {
+    width: 90%; /* Adjust postcard width for smaller screens */
+    height: auto; /* Allow height to adjust */
+    padding: 15px;
+  }
+
+  .postcard .stamp {
+    width: 60px; /* Smaller stamp size */
+    height: 60px;
+    top: 10px;
+    right: 10px;
+  }
+
+  .postcard .author {
+    font-size: 1em;
+  }
+
+  .postcard .timestamp {
+    font-size: 0.8em;
+  }
+
+  .postcard .message {
+    font-size: 14px;
+  }
 }
