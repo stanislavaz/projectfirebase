@@ -140,9 +140,10 @@ function displayPost(post) {
   const postElement = document.createElement("div");
   postElement.classList.add("postcard");
 
-  const formattedDate = post.timestamp?.toDate
-    ? post.timestamp.toDate().toLocaleString("de-DE")
-    : "Unbekannt";
+  let formattedDate = "Unbekanntes Datum";
+  if (post.timestamp && post.timestamp.toDate) {
+    formattedDate = post.timestamp.toDate().toLocaleString("de-DE");
+  }
 
   postElement.innerHTML = `
     <div class="postcard-border">
@@ -154,14 +155,16 @@ function displayPost(post) {
         </div>
         <div class="message">
           <p>${post.content}</p>
-          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ''}
+          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ""}
         </div>
       </div>
     </div>
   `;
 
-  document.getElementById("postsContainer").appendChild(postElement);
+  const postsContainer = document.getElementById("postsContainer");
+  postsContainer.appendChild(postElement);
 }
+
 
 // Delete a post
 async function deletePost(postId) {
