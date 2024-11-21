@@ -38,6 +38,7 @@ main {
   padding: 15px;
 }
 
+/* Stamp Style */
 .postcard .stamp {
   position: absolute;
   top: 15px;
@@ -50,22 +51,27 @@ main {
   border-radius: 5px;
 }
 
+/* Header: Author and Timestamp */
 .postcard .post-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column; /* Stack items vertically */
+  align-items: flex-start; /* Align to the left */
   margin-bottom: 10px;
 }
 
 .postcard .author {
   font-weight: bold;
   font-size: 1.2em;
+  margin-bottom: 5px; /* Space between author and timestamp */
 }
 
 .postcard .timestamp {
   font-size: 0.9em;
   color: #666;
+  line-height: 1.2; /* Proper spacing for multi-line date/time */
 }
 
+/* Message Content */
 .postcard .message {
   line-height: 1.6;
   font-size: 16px;
@@ -77,6 +83,7 @@ main {
   border-radius: 5px;
 }
 
+/* Footer */
 .postcard .post-footer {
   text-align: center;
   font-style: italic;
@@ -84,6 +91,7 @@ main {
   color: #444;
 }
 
+/* Buttons and Labels */
 button, label {
   background-color: white; /* White background */
   color: #333; /* Dark text */
@@ -122,6 +130,7 @@ label {
   width: auto; /* Width adjusts automatically */
 }
 
+/* General Image Styles */
 img {
   max-width: 100%;
   height: auto;
