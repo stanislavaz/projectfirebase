@@ -81,6 +81,36 @@ const stampUrls = [
   "https://i.postimg.cc/mrjqHkHK/image-55.png"
 ];
 
+// Array of additional image URLs for overlay stamps
+const overlayImages = [
+  'https://i.postimg.cc/5Nj4kDJF/image-57.png',
+  'https://i.postimg.cc/sxYNnjXR/image-58.png
+  // Add more URLs as needed
+];
+
+// Function to randomly select a stamp overlay
+function setRandomOverlay() {
+  // Get all postcards
+  const postcards = document.querySelectorAll('.postcard');
+
+  postcards.forEach(postcard => {
+    // Create a new div for the stamp overlay
+    const overlay = document.createElement('div');
+    overlay.classList.add('stamp-overlay');
+
+    // Randomly choose a background image from the overlayImages array
+    const randomImage = overlayImages[Math.floor(Math.random() * overlayImages.length)];
+    overlay.style.backgroundImage = `url(${randomImage})`;
+
+    // Append the overlay to the postcard
+    postcard.appendChild(overlay);
+  });
+}
+
+// Call the function to set the random overlay
+document.addEventListener('DOMContentLoaded', setRandomOverlay);
+
+
 // Prompt for username and store in localStorage
 function getOrCreateUsername() {
   let username = localStorage.getItem("username");
