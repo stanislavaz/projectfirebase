@@ -31,9 +31,9 @@ main {
   background: #fdf9e2; /* Light cream color resembling paper */
   font-family: 'Courier New', Courier, monospace;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  overflow: hidden; /* Ensure no content spills outside */
-  box-sizing: border-box; /* Include padding in the dimensions */
   margin: 20px auto;
+  box-sizing: border-box; /* Ensure padding does not overflow */
+  overflow: visible; /* Ensure no clipping */
 }
 
 .postcard-border {
