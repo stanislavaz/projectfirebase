@@ -39,6 +39,9 @@ app.post('/posts', (req, res) => {
   }
 });
 
+const cors = require('cors');
+app.use(cors());
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
