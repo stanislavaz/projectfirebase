@@ -20,51 +20,68 @@ main {
   gap: 20px;
 }
 
+/* Overall Postcard Styling */
 .postcard {
   position: relative;
-  border: 2px solid #ccc; /* Border for the postcard */
+  border: 2px solid #ccc;
   border-radius: 10px;
   padding: 20px;
   max-width: 600px;
   margin: 20px auto;
-  background: #fdf9e2; /* Light cream background */
-  font-family: 'Courier New', Courier, monospace; /* Styling like a postcard */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+  background: #fdf9e2; /* Light cream color resembling paper */
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.postcard-border {
+  border: 1px dashed #888; /* Dashed border like old postcards */
+  padding: 15px;
 }
 
 .postcard .stamp {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 15px;
   width: 80px;
   height: 80px;
   background-size: cover;
   background-position: center;
-  border: 1px solid #ccc; /* Border for the stamp */
-  border-radius: 5px; /* Slightly rounded corners for the stamp */
+  border: 1px solid #888;
+  border-radius: 5px;
 }
 
-.postcard .content {
-  margin-top: 20px;
+.postcard .post-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.postcard .author {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.postcard .timestamp {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.postcard .message {
   line-height: 1.6;
   font-size: 16px;
 }
 
-.postcard .addressor {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.timestamp {
-  font-size: 0.9em;
-  color: #888;
-}
-
-.postcard img {
+.postcard .message img {
   max-width: 100%;
-  height: auto;
-  margin-top: 15px;
-  border-radius: 5px; /* Rounded edges for the image */
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.postcard .post-footer {
+  text-align: center;
+  font-style: italic;
+  margin-top: 20px;
+  color: #444;
 }
 
 button, label {
