@@ -66,7 +66,19 @@ const stampUrls = [
   "https://i.postimg.cc/N0B11Vjy/image-40.png",
   "https://i.postimg.cc/Y9fCBrcR/image-41.png",
   "https://i.postimg.cc/PxqRTy97/image-42.png",
-  "https://i.postimg.cc/Jn4zmw1W/image-43.png"
+  "https://i.postimg.cc/Jn4zmw1W/image-43.png",
+  "https://i.postimg.cc/KjjVmfkz/image-44.png",
+  "https://i.postimg.cc/4yrTMqLZ/image-45.png",
+  "https://i.postimg.cc/90WhjyVg/image-46.png",
+  "https://i.postimg.cc/hPdrq6yw/image-47.png",
+  "https://i.postimg.cc/sgf4ZxDF/image-48.png",
+  "https://i.postimg.cc/26CkCs7x/image-49.png",
+  "https://i.postimg.cc/KzjW7QG2/image-50.png",
+  "https://i.postimg.cc/mkQKhkZz/image-51.png",
+  "https://i.postimg.cc/ZY7dDHJQ/image-52.png",
+  "https://i.postimg.cc/fycTZM65/image-53.png",
+  "https://i.postimg.cc/52MkKL5Z/image-54.png",
+  "https://i.postimg.cc/mrjqHkHK/image-55.png"
 ];
 
 // Prompt for username and store in localStorage
