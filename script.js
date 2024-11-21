@@ -33,7 +33,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Array for stamp URLs
 const stampUrls = [
   "https://i.postimg.cc/Yq5R9Htz/image-6.png",
   "https://i.postimg.cc/y8yzyBY7/image-7.png",
