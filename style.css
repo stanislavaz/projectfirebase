@@ -43,7 +43,7 @@ main {
   box-sizing: border-box;
 }
 
-/* Updated Stamp Styling */
+/* Postage Stamp Styling */
 .postcard .stamp {
   position: absolute;
   top: 10px; /* Adjusted to be closer to the top */
@@ -54,6 +54,20 @@ main {
   background-position: center;
   border-radius: 5px;
   box-shadow: none; /* Remove border and shadow */
+}
+
+/* Stamp Overlay Styling */
+.postcard .stamp-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px; /* Same size as the main stamp */
+  height: 100px; /* Same size as the main stamp */
+  background-size: cover;
+  background-position: center;
+  border-radius: 5px;
+  box-shadow: none; /* Remove border and shadow */
+  pointer-events: none; /* Ensures the overlay does not interfere with interactions */
 }
 
 /* Header: Author and Timestamp */
