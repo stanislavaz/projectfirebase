@@ -87,7 +87,8 @@ const overlayImages = [
   'https://i.postimg.cc/1Rrktj5Y/image-59.png',
   'https://i.postimg.cc/5tkwn13k/image-60.png',
   'https://i.postimg.cc/ZK7K9RKg/image-61.png',
-  'https://i.postimg.cc/SRLdZ3j2/image-63.png'
+  'https://i.postimg.cc/SRLdZ3j2/image-63.png',
+  'https://i.postimg.cc/Kzpx1pmT/image-65.png'
 ];
 
 // Function to randomly select a stamp overlay
