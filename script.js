@@ -149,13 +149,16 @@ function displayPost(post) {
     <div class="postcard-border">
       <div class="postcard-content">
         <div class="stamp" style="background-image: url('${randomStamp}');"></div>
-        <div class="addressor">
-          <strong>${post.author || "Anonym"}</strong>
+        <div class="post-header">
           <p class="timestamp">${formattedDate}</p>
+          <strong class="author">${post.author || "Anonym"}</strong>
         </div>
         <div class="message">
           <p>${post.content}</p>
           ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ""}
+        </div>
+        <div class="post-footer">
+          <p>Mit Liebe geschrieben</p>
         </div>
       </div>
     </div>
