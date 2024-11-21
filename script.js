@@ -1,4 +1,4 @@
-// Firebase imports 
+// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
 import {
   getFirestore,
@@ -84,8 +84,7 @@ const stampUrls = [
 // Array of additional image URLs for overlay stamps
 const overlayImages = [
   'https://i.postimg.cc/5Nj4kDJF/image-57.png',
-  'https://i.postimg.cc/sxYNnjXR/image-58.png
-  // Add more URLs as needed
+  'https://i.postimg.cc/sxYNnjXR/image-58.png' // Fixed the quote error here
 ];
 
 // Function to randomly select a stamp overlay
@@ -109,7 +108,6 @@ function setRandomOverlay() {
 
 // Call the function to set the random overlay
 document.addEventListener('DOMContentLoaded', setRandomOverlay);
-
 
 // Prompt for username and store in localStorage
 function getOrCreateUsername() {
@@ -174,74 +172,7 @@ async function loadPosts() {
     const querySnapshot = await getDocs(q);
 
     const postsContainer = document.getElementById("postsContainer");
-    postsContainer.innerHTML = '';
+    postsContainer.innerHTML = ''; // Clear the container before loading new posts
 
     querySnapshot.forEach((doc) => {
-      const postData = doc.data();
-      displayPost(postData);
-    });
-  } catch (error) {
-    console.error("Error loading posts:", error);
-    alert("Fehler beim Laden der Beiträge.");
-  }
-}
-
-// Display a single post
-function displayPost(post) {
-  const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
-  const postElement = document.createElement("div");
-  postElement.classList.add("postcard");
-
-  let formattedDate = "Unbekanntes Datum";
-  if (post.timestamp && post.timestamp.toDate) {
-    formattedDate = post.timestamp.toDate().toLocaleDateString("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    const formattedTime = post.timestamp.toDate().toLocaleTimeString("de-DE", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    formattedDate += `<br>${formattedTime}`; // Add time below the date
-  }
-
-  postElement.innerHTML = `
-    <div class="postcard-border">
-      <div class="postcard-content">
-        <div class="stamp" style="background-image: url('${randomStamp}');"></div>
-        <div class="post-header">
-          <strong class="author">${post.author || "Anonym"}</strong>
-          <p class="timestamp">${formattedDate}</p>
-        </div>
-        <div class="message">
-          <p>${post.content}</p>
-          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ""}
-        </div>
-        <div class="post-footer">
-          <p>Mit Liebe geschrieben</p>
-        </div>
-      </div>
-    </div>
-  `;
-
-  const postsContainer = document.getElementById("postsContainer");
-  postsContainer.appendChild(postElement);
-}
-
-
-// Delete a post
-async function deletePost(postId) {
-  try {
-    await deleteDoc(doc(db, "posts", postId));
-    alert("Beitrag gelöscht!");
-    loadPosts();
-  } catch (error) {
-    console.error("Error deleting post:", error);
-    alert("Fehler beim Löschen des Beitrags.");
-  }
-}
-
-// Attach event listeners
-document.getElementById("postButton").addEventListener("click", createPost);
-window.onload = loadPosts;
+      const
