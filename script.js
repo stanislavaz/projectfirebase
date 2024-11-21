@@ -164,7 +164,16 @@ function displayPost(post) {
 
   let formattedDate = "Unbekanntes Datum";
   if (post.timestamp && post.timestamp.toDate) {
-    formattedDate = post.timestamp.toDate().toLocaleString("de-DE");
+    formattedDate = post.timestamp.toDate().toLocaleDateString("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const formattedTime = post.timestamp.toDate().toLocaleTimeString("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    formattedDate += `<br>${formattedTime}`; // Add time below the date
   }
 
   postElement.innerHTML = `
@@ -172,8 +181,8 @@ function displayPost(post) {
       <div class="postcard-content">
         <div class="stamp" style="background-image: url('${randomStamp}');"></div>
         <div class="post-header">
-          <p class="timestamp">${formattedDate}</p>
           <strong class="author">${post.author || "Anonym"}</strong>
+          <p class="timestamp">${formattedDate}</p>
         </div>
         <div class="message">
           <p>${post.content}</p>
