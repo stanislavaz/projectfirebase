@@ -194,15 +194,21 @@ async function loadPosts() {
 
     const postsContainer = document.getElementById("postsContainer");
     if (!postsContainer) {
-      console.error("Posts container not found in DOM.");
+      console.error("Error: Posts container not found in DOM.");
       return;
     }
 
     postsContainer.innerHTML = ""; // Clear previous posts
 
+    if (querySnapshot.empty) {
+      console.warn("No posts found in Firestore.");
+      postsContainer.innerHTML = "<p>Keine Beiträge verfügbar.</p>";
+      return;
+    }
+
     querySnapshot.forEach((doc) => {
       const postData = doc.data();
-      console.log("Fetched post data:", postData);
+      console.log("Post retrieved:", postData);
       displayPost(postData);
     });
 
@@ -215,23 +221,29 @@ async function loadPosts() {
 
 // Display a single post
 function displayPost(post) {
-  console.log("Rendering post:", post); // Debugging line
+  console.log("Rendering post:", post);
+
   const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
   const postElement = document.createElement("div");
   postElement.classList.add("postcard");
 
   let formattedDate = "Unbekanntes Datum";
   if (post.timestamp && post.timestamp.toDate) {
-    formattedDate = post.timestamp.toDate().toLocaleDateString("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    });
-    const formattedTime = post.timestamp.toDate().toLocaleTimeString("de-DE", {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-    formattedDate += `<br>${formattedTime}`;
+    try {
+      const postDate = post.timestamp.toDate();
+      formattedDate = postDate.toLocaleDateString("de-DE", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const formattedTime = postDate.toLocaleTimeString("de-DE", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      formattedDate += `<br>${formattedTime}`;
+    } catch (error) {
+      console.error("Error formatting timestamp:", error);
+    }
   }
 
   postElement.innerHTML = `
@@ -254,6 +266,11 @@ function displayPost(post) {
   `;
 
   const postsContainer = document.getElementById("postsContainer");
+  if (!postsContainer) {
+    console.error("Error: Posts container not found in DOM.");
+    return;
+  }
+
   postsContainer.appendChild(postElement);
 }
 
