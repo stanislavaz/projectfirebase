@@ -212,11 +212,13 @@ function displayPost(post) {
 
   let formattedDate = "Unbekanntes Datum";
   if (post.timestamp && post.timestamp.toDate) {
-    formattedDate = post.timestamp.toDate().toLocaleDateString("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  formattedDate = post.timestamp.toDate().toLocaleDateString("de-DE", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
     const formattedTime = post.timestamp.toDate().toLocaleTimeString("de-DE", {
       hour: "2-digit",
       minute: "2-digit",
