@@ -214,24 +214,23 @@ async function loadPosts() {
 
 // Display a single post
 function displayPost(post) {
+  console.log("Rendering post:", post); // Debugging line
   const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
   const postElement = document.createElement("div");
   postElement.classList.add("postcard");
 
   let formattedDate = "Unbekanntes Datum";
   if (post.timestamp && post.timestamp.toDate) {
-  formattedDate = post.timestamp.toDate().toLocaleDateString("de-DE", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
+    formattedDate = post.timestamp.toDate().toLocaleDateString("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
     const formattedTime = post.timestamp.toDate().toLocaleTimeString("de-DE", {
       hour: "2-digit",
       minute: "2-digit",
     });
-    formattedDate += `<br>${formattedTime}`; // Add time below the date
+    formattedDate += `<br>${formattedTime}`;
   }
 
   postElement.innerHTML = `
@@ -254,6 +253,10 @@ function displayPost(post) {
   `;
 
   const postsContainer = document.getElementById("postsContainer");
+  if (!postsContainer) {
+    console.error("Posts container not found in DOM.");
+    return;
+  }
   postsContainer.appendChild(postElement);
 }
 
