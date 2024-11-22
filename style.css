@@ -47,15 +47,15 @@ main {
 /* Postage Stamp Styling */
 .postcard .stamp {
   position: absolute;
-  top: 10px; /* Adjusted to be closer to the top */
-  right: 10px; /* Adjusted for more space from the edge */
-  width: 100px; /* Width */
-  height: 100px; /* Height */
-  background-size: cover;
+  top: 15px; /* Add more space from the top edge */
+  right: 15px; /* Add more space from the right edge */
+  width: 120px; /* Slightly larger stamp size for visibility */
+  height: 120px;
+  background-size: contain; /* Ensure the entire image fits within the element */
   background-position: center;
-  border: none; /* Ensure no border */
-  outline: none; /* Ensure no outline */
-  box-shadow: none; /* Remove any shadow */
+  background-repeat: no-repeat; /* Prevent repeating if the image is small */
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for better visibility */
 }
 
 
@@ -70,11 +70,11 @@ main {
   background-size: contain; /* Ensure the entire image is visible */
   background-position: center;
   background-repeat: no-repeat; /* Prevent repeating */
-  border: none; /* Ensure no border */
-  outline: none; /* Ensure no outline */
-  box-shadow: none; /* Remove any shadow */
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for better visibility */
   pointer-events: none; /* Ensures the overlay does not interfere with interactions */
 }
+
 
 /* Header: Author and Timestamp */
 .postcard .post-header {
