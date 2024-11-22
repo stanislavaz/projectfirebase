@@ -120,8 +120,7 @@ function setRandomOverlay() {
   postcards.forEach((postcard) => {
     const overlay = document.createElement("div");
     overlay.classList.add("stamp-overlay");
-    const randomImage =
-      overlayImages[Math.floor(Math.random() * overlayImages.length)];
+    const randomImage = overlayImages[Math.floor(Math.random() * overlayImages.length)];
     overlay.style.backgroundImage = `url(${randomImage})`;
     postcard.appendChild(overlay);
   });
@@ -159,23 +158,26 @@ async function createPost() {
 
     if (imageFile) {
       const imageRef = ref(storage, `post_images/${Date.now()}_${imageFile.name}`);
+      console.log("Uploading image...");
       await uploadBytes(imageRef, imageFile);
       imageUrl = await getDownloadURL(imageRef);
+      console.log("Image uploaded. URL:", imageUrl);
     }
 
     const newPost = {
       content: postContent,
       timestamp: Timestamp.now(),
       author: username,
-      imageUrl: imageUrl || null,
+      imageUrl: imageUrl || null
     };
 
+    console.log("Adding new post to Firestore:", newPost);
     await addDoc(collection(db, "posts"), newPost);
 
     alert("Beitrag erfolgreich erstellt!");
     document.getElementById("postContent").value = "";
     imageUpload.value = "";
-    loadPosts();
+    await loadPosts();
   } catch (error) {
     console.error("Error creating post:", error);
     alert("Fehler beim Erstellen des Beitrags.");
@@ -185,16 +187,22 @@ async function createPost() {
 // Load posts from Firestore
 async function loadPosts() {
   try {
+    console.log("Fetching posts from Firestore...");
     const postsCollection = collection(db, "posts");
     const q = query(postsCollection, orderBy("timestamp", "desc"));
     const querySnapshot = await getDocs(q);
 
     const postsContainer = document.getElementById("postsContainer");
+    if (!postsContainer) {
+      console.error("Posts container not found in DOM.");
+      return;
+    }
+
     postsContainer.innerHTML = ""; // Clear previous posts
 
     querySnapshot.forEach((doc) => {
       const postData = doc.data();
-      console.log("Post data:", postData); // Debugging line
+      console.log("Fetched post data:", postData);
       displayPost(postData);
     });
 
@@ -204,7 +212,6 @@ async function loadPosts() {
     alert("Fehler beim Laden der Beiträge.");
   }
 }
-
 
 // Display a single post
 function displayPost(post) {
@@ -218,11 +225,11 @@ function displayPost(post) {
     formattedDate = post.timestamp.toDate().toLocaleDateString("de-DE", {
       year: "numeric",
       month: "long",
-      day: "numeric",
+      day: "numeric"
     });
     const formattedTime = post.timestamp.toDate().toLocaleTimeString("de-DE", {
       hour: "2-digit",
-      minute: "2-digit",
+      minute: "2-digit"
     });
     formattedDate += `<br>${formattedTime}`;
   }
@@ -247,25 +254,12 @@ function displayPost(post) {
   `;
 
   const postsContainer = document.getElementById("postsContainer");
-  if (!postsContainer) {
-    console.error("Posts container not found in DOM.");
-    return;
-  }
   postsContainer.appendChild(postElement);
-}
-
-// Delete a post
-async function deletePost(postId) {
-  try {
-    await deleteDoc(doc(db, "posts", postId));
-    alert("Beitrag gelöscht!");
-    loadPosts();
-  } catch (error) {
-    console.error("Error deleting post:", error);
-    alert("Fehler beim Löschen des Beitrags.");
-  }
 }
 
 // Attach event listeners
 document.getElementById("postButton").addEventListener("click", createPost);
-window.onload = loadPosts;
+window.onload = async () => {
+  console.log("Page loaded. Loading posts...");
+  await loadPosts();
+};
