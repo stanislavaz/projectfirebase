@@ -190,17 +190,25 @@ async function loadPosts() {
     const querySnapshot = await getDocs(q);
 
     const postsContainer = document.getElementById("postsContainer");
+    if (!postsContainer) {
+      console.error("Posts container not found in the DOM.");
+      return;
+    }
     postsContainer.innerHTML = ""; // Clear previous posts
 
     querySnapshot.forEach((doc) => {
       const postData = doc.data();
-      displayPost(postData);
+      if (postData) {
+        displayPost(postData);
+      } else {
+        console.warn(`Document ${doc.id} has no data.`);
+      }
     });
 
     setRandomOverlay(); // Add random overlays to posts
   } catch (error) {
     console.error("Error loading posts:", error);
-    alert("Fehler beim Laden der Beiträge.");
+    alert("Fehler beim Laden der Beiträge. Überprüfen Sie die Konsole für weitere Informationen.");
   }
 }
 
