@@ -126,6 +126,7 @@ function setRandomOverlay() {
   });
 }
 
+
 // Prompt for username and save in localStorage
 function getOrCreateUsername() {
   let username = localStorage.getItem("username");
@@ -140,7 +141,6 @@ function getOrCreateUsername() {
   }
   return username;
 }
-
 // Create a new post
 async function createPost() {
   const postContent = document.getElementById("postContent").value.trim();
@@ -157,6 +157,7 @@ async function createPost() {
 
     if (file) {
       const imageRef = ref(storage, `post_images/${Date.now()}_${file.name}`);
+      console.log("Uploading image...");
       await uploadBytes(imageRef, file);
       imageUrl = await getDownloadURL(imageRef);
     }
@@ -164,13 +165,14 @@ async function createPost() {
     const newPost = {
       content: postContent,
       timestamp: Timestamp.now(),
-      author: "Anonym",
+      author: getOrCreateUsername() || "Anonym",
       imageUrl
     };
 
+    console.log("Adding post to Firestore:", newPost);
     await addDoc(collection(db, "posts"), newPost);
     alert("Beitrag erfolgreich erstellt!");
-    loadPosts(); // Reload posts
+    loadPosts();
   } catch (error) {
     console.error("Error creating post:", error);
     alert("Fehler beim Erstellen des Beitrags.");
@@ -180,17 +182,18 @@ async function createPost() {
 // Load posts from Firestore
 async function loadPosts() {
   try {
+    console.log("Loading posts...");
     const postsCollection = collection(db, "posts");
     const q = query(postsCollection, orderBy("timestamp", "desc"));
     const querySnapshot = await getDocs(q);
 
     const postsContainer = document.getElementById("postsContainer");
     if (!postsContainer) {
-      console.error("Error: postsContainer not found in DOM.");
+      console.error("Error: postsContainer not found.");
       return;
     }
 
-    postsContainer.innerHTML = ""; // Clear previous posts
+    postsContainer.innerHTML = ""; // Clear old posts
 
     if (querySnapshot.empty) {
       console.warn("No posts found.");
@@ -200,8 +203,12 @@ async function loadPosts() {
 
     querySnapshot.forEach((doc) => {
       const postData = doc.data();
+      console.log("Post data:", postData);
       displayPost(postData);
     });
+
+    // Apply overlays after posts are loaded
+    setRandomOverlay();
   } catch (error) {
     console.error("Error loading posts:", error);
     alert("Fehler beim Laden der Beiträge.");
@@ -213,14 +220,14 @@ async function loadPosts() {
 function displayPost(post) {
   const postsContainer = document.getElementById("postsContainer");
   if (!postsContainer) {
-    console.error("Error: postsContainer not found in DOM.");
+    console.error("Error: postsContainer not found.");
     return;
   }
 
   const postElement = document.createElement("div");
   postElement.classList.add("postcard");
 
-  const postDate = post.timestamp.toDate
+  const postDate = post.timestamp?.toDate
     ? post.timestamp.toDate().toLocaleString("de-DE")
     : "Unbekanntes Datum";
 
