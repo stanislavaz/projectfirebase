@@ -195,6 +195,7 @@ async function loadPosts() {
 
     postsContainer.innerHTML = ""; // Clear old posts
 
+    console.log(`Retrieved ${querySnapshot.size} posts.`);
     if (querySnapshot.empty) {
       console.warn("No posts found.");
       postsContainer.innerHTML = "<p>Keine Beiträge gefunden.</p>";
@@ -207,8 +208,7 @@ async function loadPosts() {
       displayPost(postData);
     });
 
-    // Apply overlays after posts are loaded
-    setRandomOverlay();
+    setRandomOverlay(); // Ensure overlays are applied
   } catch (error) {
     console.error("Error loading posts:", error);
     alert("Fehler beim Laden der Beiträge.");
