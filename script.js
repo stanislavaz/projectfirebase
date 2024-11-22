@@ -145,39 +145,32 @@ function getOrCreateUsername() {
 async function createPost() {
   const postContent = document.getElementById("postContent").value.trim();
   const imageUpload = document.getElementById("imageUpload");
-  const imageFile = imageUpload.files[0];
-  const username = getOrCreateUsername();
+  const file = imageUpload.files[0];
 
-  if (!username || !postContent) {
-    alert("Bitte gib einen Namen und Inhalt an.");
+  if (!postContent) {
+    alert("Bitte gib einen Text ein.");
     return;
   }
 
   try {
     let imageUrl = null;
 
-    if (imageFile) {
-      const imageRef = ref(storage, `post_images/${Date.now()}_${imageFile.name}`);
-      console.log("Uploading image...");
-      await uploadBytes(imageRef, imageFile);
+    if (file) {
+      const imageRef = ref(storage, `post_images/${Date.now()}_${file.name}`);
+      await uploadBytes(imageRef, file);
       imageUrl = await getDownloadURL(imageRef);
-      console.log("Image uploaded. URL:", imageUrl);
     }
 
     const newPost = {
       content: postContent,
       timestamp: Timestamp.now(),
-      author: username,
-      imageUrl: imageUrl || null
+      author: "Anonym",
+      imageUrl
     };
 
-    console.log("Adding new post to Firestore:", newPost);
     await addDoc(collection(db, "posts"), newPost);
-
     alert("Beitrag erfolgreich erstellt!");
-    document.getElementById("postContent").value = "";
-    imageUpload.value = "";
-    await loadPosts();
+    loadPosts(); // Reload posts
   } catch (error) {
     console.error("Error creating post:", error);
     alert("Fehler beim Erstellen des Beitrags.");
@@ -187,96 +180,71 @@ async function createPost() {
 // Load posts from Firestore
 async function loadPosts() {
   try {
-    console.log("Fetching posts from Firestore...");
     const postsCollection = collection(db, "posts");
     const q = query(postsCollection, orderBy("timestamp", "desc"));
     const querySnapshot = await getDocs(q);
 
     const postsContainer = document.getElementById("postsContainer");
     if (!postsContainer) {
-      console.error("Error: Posts container not found in DOM.");
+      console.error("Error: postsContainer not found in DOM.");
       return;
     }
 
     postsContainer.innerHTML = ""; // Clear previous posts
 
     if (querySnapshot.empty) {
-      console.warn("No posts found in Firestore.");
-      postsContainer.innerHTML = "<p>Keine Beiträge verfügbar.</p>";
+      console.warn("No posts found.");
+      postsContainer.innerHTML = "<p>Keine Beiträge gefunden.</p>";
       return;
     }
 
     querySnapshot.forEach((doc) => {
       const postData = doc.data();
-      console.log("Post retrieved:", postData);
       displayPost(postData);
     });
-
-    setRandomOverlay(); // Add random overlays to posts
   } catch (error) {
     console.error("Error loading posts:", error);
     alert("Fehler beim Laden der Beiträge.");
   }
 }
 
+
 // Display a single post
 function displayPost(post) {
-  console.log("Rendering post:", post);
+  const postsContainer = document.getElementById("postsContainer");
+  if (!postsContainer) {
+    console.error("Error: postsContainer not found in DOM.");
+    return;
+  }
 
-  const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
   const postElement = document.createElement("div");
   postElement.classList.add("postcard");
 
-  let formattedDate = "Unbekanntes Datum";
-  if (post.timestamp && post.timestamp.toDate) {
-    try {
-      const postDate = post.timestamp.toDate();
-      formattedDate = postDate.toLocaleDateString("de-DE", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-      const formattedTime = postDate.toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      formattedDate += `<br>${formattedTime}`;
-    } catch (error) {
-      console.error("Error formatting timestamp:", error);
-    }
-  }
+  const postDate = post.timestamp.toDate
+    ? post.timestamp.toDate().toLocaleString("de-DE")
+    : "Unbekanntes Datum";
 
   postElement.innerHTML = `
     <div class="postcard-border">
       <div class="postcard-content">
-        <div class="stamp" style="background-image: url('${randomStamp}');"></div>
         <div class="post-header">
-          <strong class="author">${post.author || "Anonym"}</strong>
-          <p class="timestamp">${formattedDate}</p>
+          <strong>${post.author || "Anonym"}</strong>
+          <span>${postDate}</span>
         </div>
-        <div class="message">
-          <p>${post.content}</p>
-          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ""}
-        </div>
-        <div class="post-footer">
-          <p>Mit Liebe geschrieben</p>
-        </div>
+        <div class="message">${post.content}</div>
+        ${
+          post.imageUrl
+            ? `<img src="${post.imageUrl}" alt="Image" class="post-image" />`
+            : ""
+        }
       </div>
     </div>
   `;
 
-  const postsContainer = document.getElementById("postsContainer");
-  if (!postsContainer) {
-    console.error("Error: Posts container not found in DOM.");
-    return;
-  }
-
   postsContainer.appendChild(postElement);
 }
 
+
 // Attach event listeners
 document.getElementById("postButton").addEventListener("click", createPost);
-window.onload = async () => {
-  console.log("Page loaded. Loading posts...");
-  await loadPosts();
-};
+window.onload = loadPosts;
