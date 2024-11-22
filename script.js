@@ -120,12 +120,12 @@ function setRandomOverlay() {
   postcards.forEach((postcard) => {
     const overlay = document.createElement("div");
     overlay.classList.add("stamp-overlay");
-    const randomImage = overlayImages[Math.floor(Math.random() * overlayImages.length)];
+    const randomImage =
+      overlayImages[Math.floor(Math.random() * overlayImages.length)];
     overlay.style.backgroundImage = `url(${randomImage})`;
     postcard.appendChild(overlay);
   });
 }
-
 
 // Prompt for username and save in localStorage
 function getOrCreateUsername() {
@@ -141,37 +141,40 @@ function getOrCreateUsername() {
   }
   return username;
 }
+
 // Create a new post
 async function createPost() {
   const postContent = document.getElementById("postContent").value.trim();
   const imageUpload = document.getElementById("imageUpload");
-  const file = imageUpload.files[0];
+  const imageFile = imageUpload.files[0];
+  const username = getOrCreateUsername();
 
-  if (!postContent) {
-    alert("Bitte gib einen Text ein.");
+  if (!username || !postContent) {
+    alert("Bitte gib einen Namen und Inhalt an.");
     return;
   }
 
   try {
     let imageUrl = null;
 
-    if (file) {
-      const imageRef = ref(storage, `post_images/${Date.now()}_${file.name}`);
-      console.log("Uploading image...");
-      await uploadBytes(imageRef, file);
+    if (imageFile) {
+      const imageRef = ref(storage, `post_images/${Date.now()}_${imageFile.name}`);
+      await uploadBytes(imageRef, imageFile);
       imageUrl = await getDownloadURL(imageRef);
     }
 
     const newPost = {
       content: postContent,
       timestamp: Timestamp.now(),
-      author: getOrCreateUsername() || "Anonym",
-      imageUrl
+      author: username,
+      imageUrl: imageUrl || null,
     };
 
-    console.log("Adding post to Firestore:", newPost);
     await addDoc(collection(db, "posts"), newPost);
+
     alert("Beitrag erfolgreich erstellt!");
+    document.getElementById("postContent").value = "";
+    imageUpload.value = "";
     loadPosts();
   } catch (error) {
     console.error("Error creating post:", error);
@@ -182,75 +185,79 @@ async function createPost() {
 // Load posts from Firestore
 async function loadPosts() {
   try {
-    console.log("Loading posts...");
     const postsCollection = collection(db, "posts");
     const q = query(postsCollection, orderBy("timestamp", "desc"));
     const querySnapshot = await getDocs(q);
 
     const postsContainer = document.getElementById("postsContainer");
-    if (!postsContainer) {
-      console.error("Error: postsContainer not found.");
-      return;
-    }
-
-    postsContainer.innerHTML = ""; // Clear old posts
-
-    console.log(`Retrieved ${querySnapshot.size} posts.`);
-    if (querySnapshot.empty) {
-      console.warn("No posts found.");
-      postsContainer.innerHTML = "<p>Keine Beiträge gefunden.</p>";
-      return;
-    }
+    postsContainer.innerHTML = ""; // Clear previous posts
 
     querySnapshot.forEach((doc) => {
       const postData = doc.data();
-      console.log("Post data:", postData);
       displayPost(postData);
     });
 
-    setRandomOverlay(); // Ensure overlays are applied
+    setRandomOverlay(); // Add random overlays to posts
   } catch (error) {
     console.error("Error loading posts:", error);
     alert("Fehler beim Laden der Beiträge.");
   }
 }
 
-
 // Display a single post
 function displayPost(post) {
-  const postsContainer = document.getElementById("postsContainer");
-  if (!postsContainer) {
-    console.error("Error: postsContainer not found.");
-    return;
-  }
-
+  const randomStamp = stampUrls[Math.floor(Math.random() * stampUrls.length)];
   const postElement = document.createElement("div");
   postElement.classList.add("postcard");
 
-  const postDate = post.timestamp?.toDate
-    ? post.timestamp.toDate().toLocaleString("de-DE")
-    : "Unbekanntes Datum";
+  let formattedDate = "Unbekanntes Datum";
+  if (post.timestamp && post.timestamp.toDate) {
+    formattedDate = post.timestamp.toDate().toLocaleDateString("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const formattedTime = post.timestamp.toDate().toLocaleTimeString("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    formattedDate += `<br>${formattedTime}`; // Add time below the date
+  }
 
   postElement.innerHTML = `
     <div class="postcard-border">
       <div class="postcard-content">
+        <div class="stamp" style="background-image: url('${randomStamp}');"></div>
         <div class="post-header">
-          <strong>${post.author || "Anonym"}</strong>
-          <span>${postDate}</span>
+          <strong class="author">${post.author || "Anonym"}</strong>
+          <p class="timestamp">${formattedDate}</p>
         </div>
-        <div class="message">${post.content}</div>
-        ${
-          post.imageUrl
-            ? `<img src="${post.imageUrl}" alt="Image" class="post-image" />`
-            : ""
-        }
+        <div class="message">
+          <p>${post.content}</p>
+          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ""}
+        </div>
+        <div class="post-footer">
+          <p>Mit Liebe geschrieben</p>
+        </div>
       </div>
     </div>
   `;
 
+  const postsContainer = document.getElementById("postsContainer");
   postsContainer.appendChild(postElement);
 }
 
+// Delete a post
+async function deletePost(postId) {
+  try {
+    await deleteDoc(doc(db, "posts", postId));
+    alert("Beitrag gelöscht!");
+    loadPosts();
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    alert("Fehler beim Löschen des Beitrags.");
+  }
+}
 
 // Attach event listeners
 document.getElementById("postButton").addEventListener("click", createPost);
