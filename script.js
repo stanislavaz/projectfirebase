@@ -8,7 +8,7 @@ import {
   deleteDoc,
   doc,
   query,
-  orderBy,
+  orderBy, 
   Timestamp
 } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
 import {
@@ -83,7 +83,14 @@ const stampUrls = [
 // Array of additional image URLs for overlay stamps
 const overlayImages = [
   'https://i.postimg.cc/5Nj4kDJF/image-57.png',
-  'https://i.postimg.cc/sxYNnjXR/image-58.png' // Fixed the quote error here
+  'https://i.postimg.cc/sxYNnjXR/image-58.png',
+  'https://i.postimg.cc/1Rrktj5Y/image-59.png',
+  'https://i.postimg.cc/5tkwn13k/image-60.png',
+  'https://i.postimg.cc/ZK7K9RKg/image-61.png',
+  'https://i.postimg.cc/SRLdZ3j2/image-63.png',
+  'https://i.postimg.cc/Kzpx1pmT/image-65.png',
+  'https://i.postimg.cc/hPYLgKx8/image-68.png',
+  'https://i.postimg.cc/t4xxjfhY/image-70.png'
 ];
 
 // Function to randomly select a stamp overlay
