@@ -1,4 +1,4 @@
-// database.js  
+// database.js 
 const databasePath = 'posts.json'; // Update with your database name
 
 // Function to get posts from the database
