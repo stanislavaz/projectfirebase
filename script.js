@@ -1,4 +1,4 @@
-// Firebase imports 
+// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
 import {
   getFirestore,
@@ -8,14 +8,14 @@ import {
   deleteDoc,
   doc,
   query,
-  orderBy, 
-  Timestamp
+  orderBy,
+  Timestamp,
 } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
 import {
   getStorage,
   ref,
   uploadBytes,
-  getDownloadURL
+  getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
 
 // Firebase configuration and initialization
@@ -26,13 +26,14 @@ const firebaseConfig = {
   storageBucket: "liebe-f332d.appspot.com",
   messagingSenderId: "199124008155",
   appId: "1:199124008155:web:04f7f5582811693fdda0fe",
-  measurementId: "G-TE1VF9N946"
+  measurementId: "G-TE1VF9N946",
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
+// Array for stamp URLs
 const stampUrls = [
   "https://i.postimg.cc/Yq5R9Htz/image-6.png",
   "https://i.postimg.cc/y8yzyBY7/image-7.png",
@@ -102,7 +103,7 @@ const stampUrls = [
   "https://i.postimg.cc/QCvHBPCy/image-93.png"
 ];
 
-// Array of additional image URLs for overlay stamps
+// Overlay images for postcards
 const overlayImages = [
   'https://i.postimg.cc/5Nj4kDJF/image-57.png',
   'https://i.postimg.cc/sxYNnjXR/image-58.png',
@@ -113,8 +114,7 @@ const overlayImages = [
   'https://i.postimg.cc/hPYLgKx8/image-68.png',
   'https://i.postimg.cc/t4xxjfhY/image-70.png'
 ];
-
-// Function to randomly select a stamp overlay
+// Set random overlay for postcards
 function setRandomOverlay() {
   const postcards = document.querySelectorAll(".postcard");
   postcards.forEach((postcard) => {
