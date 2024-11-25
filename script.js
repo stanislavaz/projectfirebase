@@ -1,4 +1,4 @@
-// Firebase imports 
+// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
 import {
   getFirestore,
@@ -33,7 +33,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Array for stamp URLs
 const stampUrls = [
   "https://i.postimg.cc/Yq5R9Htz/image-6.png",
   "https://i.postimg.cc/y8yzyBY7/image-7.png",
@@ -56,10 +55,51 @@ const stampUrls = [
   "https://i.postimg.cc/wTGFW5pW/image-30.png",
   "https://i.postimg.cc/3JF0NYL2/image-31.png",
   "https://i.postimg.cc/yxY4ThH1/image-32.png",
-  "https://i.postimg.cc/PJ4Dgj9b/image-33.png"
+  "https://i.postimg.cc/PJ4Dgj9b/image-33.png",
+  "https://i.postimg.cc/Y9M6kPWN/image-34.png",
+  "https://i.postimg.cc/4yCms7MD/image-35.png", 
+  "https://i.postimg.cc/j2NvSfjP/image-36.png",
+  "https://i.postimg.cc/8zd3b2NM/image-37.png",
+  "https://i.postimg.cc/DzLqshh3/image-38.png",
+  "https://i.postimg.cc/zG9Q8q7s/image-39.png",
+  "https://i.postimg.cc/N0B11Vjy/image-40.png",
+  "https://i.postimg.cc/Y9fCBrcR/image-41.png",
+  "https://i.postimg.cc/PxqRTy97/image-42.png",
+  "https://i.postimg.cc/Jn4zmw1W/image-43.png",
+  "https://i.postimg.cc/KjjVmfkz/image-44.png",
+  "https://i.postimg.cc/4yrTMqLZ/image-45.png",
+  "https://i.postimg.cc/90WhjyVg/image-46.png",
+  "https://i.postimg.cc/hPdrq6yw/image-47.png",
+  "https://i.postimg.cc/sgf4ZxDF/image-48.png",
+  "https://i.postimg.cc/26CkCs7x/image-49.png",
+  "https://i.postimg.cc/KzjW7QG2/image-50.png",
+  "https://i.postimg.cc/mkQKhkZz/image-51.png",
+  "https://i.postimg.cc/ZY7dDHJQ/image-52.png",
+  "https://i.postimg.cc/fycTZM65/image-53.png",
+  "https://i.postimg.cc/52MkKL5Z/image-54.png",
+  "https://i.postimg.cc/mrjqHkHK/image-55.png"
 ];
 
-// Prompt for username and store in localStorage
+// Array of additional image URLs for overlay stamps
+const overlayImages = [
+  'https://i.postimg.cc/5Nj4kDJF/image-57.png',
+  'https://i.postimg.cc/sxYNnjXR/image-58.png' // Fixed the quote error here
+];
+
+// Function to randomly select a stamp overlay
+function setRandomOverlay() {
+  const postcards = document.querySelectorAll(".postcard");
+  postcards.forEach((postcard) => {
+    const overlay = document.createElement("div");
+    overlay.classList.add("stamp-overlay");
+    const randomImage =
+      overlayImages[Math.floor(Math.random() * overlayImages.length)];
+    overlay.style.backgroundImage = `url(${randomImage})`;
+    postcard.appendChild(overlay);
+  });
+}
+
+// Prompt for username and save in localStorage
 function getOrCreateUsername() {
   let username = localStorage.getItem("username");
   if (!username) {
@@ -99,14 +139,14 @@ async function createPost() {
       content: postContent,
       timestamp: Timestamp.now(),
       author: username,
-      imageUrl: imageUrl || null
+      imageUrl: imageUrl || null,
     };
 
     await addDoc(collection(db, "posts"), newPost);
 
     alert("Beitrag erfolgreich erstellt!");
-    document.getElementById("postContent").value = '';
-    imageUpload.value = '';
+    document.getElementById("postContent").value = "";
+    imageUpload.value = "";
     loadPosts();
   } catch (error) {
     console.error("Error creating post:", error);
@@ -122,12 +162,14 @@ async function loadPosts() {
     const querySnapshot = await getDocs(q);
 
     const postsContainer = document.getElementById("postsContainer");
-    postsContainer.innerHTML = '';
+    postsContainer.innerHTML = ""; // Clear previous posts
 
     querySnapshot.forEach((doc) => {
       const postData = doc.data();
       displayPost(postData);
     });
+
+    setRandomOverlay(); // Add random overlays to posts
   } catch (error) {
     console.error("Error loading posts:", error);
     alert("Fehler beim Laden der Beiträge.");
@@ -142,20 +184,32 @@ function displayPost(post) {
 
   let formattedDate = "Unbekanntes Datum";
   if (post.timestamp && post.timestamp.toDate) {
-    formattedDate = post.timestamp.toDate().toLocaleString("de-DE");
+    formattedDate = post.timestamp.toDate().toLocaleDateString("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const formattedTime = post.timestamp.toDate().toLocaleTimeString("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    formattedDate += `<br>${formattedTime}`; // Add time below the date
   }
 
   postElement.innerHTML = `
     <div class="postcard-border">
       <div class="postcard-content">
         <div class="stamp" style="background-image: url('${randomStamp}');"></div>
-        <div class="addressor">
-          <strong>${post.author || "Anonym"}</strong>
+        <div class="post-header">
+          <strong class="author">${post.author || "Anonym"}</strong>
           <p class="timestamp">${formattedDate}</p>
         </div>
         <div class="message">
           <p>${post.content}</p>
           ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ""}
+        </div>
+        <div class="post-footer">
+          <p>Mit Liebe geschrieben</p>
         </div>
       </div>
     </div>
@@ -164,7 +218,6 @@ function displayPost(post) {
   const postsContainer = document.getElementById("postsContainer");
   postsContainer.appendChild(postElement);
 }
-
 
 // Delete a post
 async function deletePost(postId) {
