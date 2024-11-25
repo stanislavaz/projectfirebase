@@ -44,31 +44,37 @@ main {
 }
 
 /* Postage Stamp Styling */
+/* Postage Stamp Styling */
 .postcard .stamp {
   position: absolute;
-  top: 10px; /* Adjusted to be closer to the top */
-  right: 10px; /* Adjusted for more space from the edge */
-  width: 100px; /* Increased width */
-  height: 100px; /* Increased height */
-  background-size: cover;
+  top: 15px; /* Add more space from the top edge */
+  right: 15px; /* Add more space from the right edge */
+  width: 120px; /* Slightly larger stamp size for visibility */
+  height: 120px;
+  background-size: contain; /* Ensure the entire image fits within the element */
   background-position: center;
+  background-repeat: no-repeat; /* Prevent repeating if the image is small */
   border-radius: 5px;
-  box-shadow: none; /* Remove border and shadow */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for better visibility */
 }
 
+
+/* Stamp Overlay Styling */
 /* Stamp Overlay Styling */
 .postcard .stamp-overlay {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 100px; /* Same size as the main stamp */
-  height: 100px; /* Same size as the main stamp */
-  background-size: cover;
+  top: 140px; /* Positioned slightly below the postage stamp */
+  right: 140px; /* Positioned to the left of the postage stamp */
+  width: 100px; /* Keep the same size as the postage stamp */
+  height: 100px;
+  background-size: contain; /* Ensure the entire image is visible */
   background-position: center;
+  background-repeat: no-repeat; /* Prevent repeating */
   border-radius: 5px;
-  box-shadow: none; /* Remove border and shadow */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for better visibility */
   pointer-events: none; /* Ensures the overlay does not interfere with interactions */
 }
+
 
 /* Header: Author and Timestamp */
 .postcard .post-header {
