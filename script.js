@@ -190,6 +190,11 @@ async function loadPosts() {
     const querySnapshot = await getDocs(q);
 
     const postsContainer = document.getElementById("postsContainer");
+    if (!postsContainer) {
+      console.error("Posts container not found in the DOM.");
+      return;
+    }
+
     postsContainer.innerHTML = ""; // Clear previous posts
 
     querySnapshot.forEach((doc) => {
@@ -203,6 +208,7 @@ async function loadPosts() {
     alert("Fehler beim Laden der Beiträge.");
   }
 }
+
 
 // Display a single post
 function displayPost(post) {
