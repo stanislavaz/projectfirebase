@@ -20,53 +20,99 @@ main {
   gap: 20px;
 }
 
+/* Overall Postcard Styling */
 .postcard {
   position: relative;
-  border: 2px solid #ccc; /* Border for the postcard */
+  width: 550px; /* Width set to 148mm in pixels */
+  height: 390px; /* Height set to 105mm in pixels */
+  border: 2px solid #ccc;
   border-radius: 10px;
   padding: 20px;
-  max-width: 600px;
+  background: #fdf9e2; /* Light cream color resembling paper */
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   margin: 20px auto;
-  background: #fdf9e2; /* Light cream background */
-  font-family: 'Courier New', Courier, monospace; /* Styling like a postcard */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+  box-sizing: border-box; /* Ensure padding does not overflow */
+  overflow: visible; /* Ensure no clipping */
 }
 
+.postcard-border {
+  border: 1px dashed #888; /* Dashed border like old postcards */
+  padding: 15px;
+  height: 100%; /* Fit inside postcard */
+  box-sizing: border-box;
+}
+
+/* Postage Stamp Styling */
 .postcard .stamp {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 80px;
-  height: 80px;
+  top: 10px; /* Adjusted to be closer to the top */
+  right: 10px; /* Adjusted for more space from the edge */
+  width: 100px; /* Increased width */
+  height: 100px; /* Increased height */
   background-size: cover;
   background-position: center;
-  border: 1px solid #ccc; /* Border for the stamp */
-  border-radius: 5px; /* Slightly rounded corners for the stamp */
+  border-radius: 5px;
+  box-shadow: none; /* Remove border and shadow */
 }
 
-.postcard .content {
-  margin-top: 20px;
-  line-height: 1.6;
-  font-size: 16px;
+/* Stamp Overlay Styling */
+.postcard .stamp-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px; /* Same size as the main stamp */
+  height: 100px; /* Same size as the main stamp */
+  background-size: cover;
+  background-position: center;
+  border-radius: 5px;
+  box-shadow: none; /* Remove border and shadow */
+  pointer-events: none; /* Ensures the overlay does not interfere with interactions */
 }
 
-.postcard .addressor {
-  font-weight: bold;
+/* Header: Author and Timestamp */
+.postcard .post-header {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: flex-start; /* Align to the left */
   margin-bottom: 10px;
 }
 
-.timestamp {
+.postcard .author {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 5px; /* Space between author and timestamp */
+}
+
+.postcard .timestamp {
   font-size: 0.9em;
-  color: #888;
+  color: #666;
+  line-height: 1.2; /* Proper spacing for multi-line date/time */
 }
 
-.postcard img {
+/* Message Content */
+.postcard .message {
+  line-height: 1.6;
+  font-size: 16px;
+  overflow: hidden; /* Ensure the text doesn't spill outside */
+  word-wrap: break-word; /* Handle long words */
+  margin-bottom: 20px; /* Space from footer */
+}
+
+.postcard .message img {
   max-width: 100%;
-  height: auto;
-  margin-top: 15px;
-  border-radius: 5px; /* Rounded edges for the image */
+  margin-top: 10px;
+  border-radius: 5px;
 }
 
+/* Footer */
+.postcard .post-footer {
+  text-align: center;
+  font-style: italic;
+  color: #444;
+}
+
+/* Buttons and Labels */
 button, label {
   background-color: white; /* White background */
   color: #333; /* Dark text */
@@ -105,8 +151,37 @@ label {
   width: auto; /* Width adjusts automatically */
 }
 
+/* General Image Styles */
 img {
   max-width: 100%;
   height: auto;
   margin-top: 10px;
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 600px) {
+  .postcard {
+    width: 90%; /* Adjust postcard width for smaller screens */
+    height: auto; /* Allow height to adjust */
+    padding: 15px;
+  }
+
+  .postcard .stamp {
+    width: 80px; /* Slightly smaller stamp size for mobile */
+    height: 80px;
+    top: 10px;
+    right: 10px;
+  }
+
+  .postcard .author {
+    font-size: 1em;
+  }
+
+  .postcard .timestamp {
+    font-size: 0.8em;
+  }
+
+  .postcard .message {
+    font-size: 14px;
+  }
 }
