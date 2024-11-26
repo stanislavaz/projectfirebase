@@ -63,9 +63,9 @@ main {
 /* Stamp Overlay Styling */
 .postcard .stamp-overlay {
   position: absolute;
-  top: 140px; /* Positioned slightly below the postage stamp */
-  right: 140px; /* Positioned to the left of the postage stamp */
-  width: 100px; /* Keep the same size as the postage stamp */
+  top: 15px; /* Align with the top of the postage stamp */
+  right: 140px; /* Slightly to the left of the postage stamp */
+  width: 100px; /* Same size as the overlay */
   height: 100px;
   background-size: contain; /* Ensure the entire image is visible */
   background-position: center;
