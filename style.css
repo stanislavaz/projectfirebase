@@ -61,8 +61,8 @@ main {
   position: absolute;
   top: 115px; /* Align with the top of the postage stamp */
   right: 40px; /* Slightly to the left of the postage stamp */
-  width: 100px; /* Same size as the overlay */
-  height: 100px;
+  width: 140px; /* Same size as the overlay */
+  height: 140px;
   background-size: contain; /* Ensure the entire image is visible */
   background-position: center;
   background-repeat: no-repeat; /* Prevent repeating */
