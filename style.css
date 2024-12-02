@@ -59,7 +59,7 @@ main {
 
 .postcard .stamp-overlay {
   position: absolute;
-  top: 65px; /* Align with the top of the postage stamp */
+  top: 45px; /* Align with the top of the postage stamp */
   right: 40px; /* Slightly to the left of the postage stamp */
   width: 120px; /* Same size as the overlay */
   height: 120px;
