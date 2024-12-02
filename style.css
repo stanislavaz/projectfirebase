@@ -55,12 +55,8 @@ main {
   background-position: center;
   background-repeat: no-repeat; /* Prevent repeating if the image is small */
   border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for better visibility */
 }
 
-
-/* Stamp Overlay Styling */
-/* Stamp Overlay Styling */
 .postcard .stamp-overlay {
   position: absolute;
   top: 15px; /* Align with the top of the postage stamp */
@@ -71,7 +67,6 @@ main {
   background-position: center;
   background-repeat: no-repeat; /* Prevent repeating */
   border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for better visibility */
   pointer-events: none; /* Ensures the overlay does not interfere with interactions */
 }
 
