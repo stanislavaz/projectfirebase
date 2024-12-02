@@ -44,7 +44,7 @@ async function getUserDataFromDatabase() {
 }
 
 // Function to save usernames and userIDs to the database
-async function saveUserDataToDatabase(usernames, userIDs) {
+async function saveUserDataToDatabase(usernames, userIDs) { 
   try {
     const response = await fetch(databasePath, {
       method: 'PUT',
