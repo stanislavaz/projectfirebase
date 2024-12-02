@@ -125,7 +125,59 @@ function setRandomOverlay() {
     postcard.appendChild(overlay);
   });
 }
+async function addComment(postId, commentContent) {
+  const username = getOrCreateUsername();
 
+  if (!username || !commentContent) {
+    alert("Wer hat denn dir auf die Zunge gebissen? Schreib doch was!");
+    return;
+  }
+
+  try {
+    const postRef = doc(db, "posts", postId);
+    const comment = {
+      author: username,
+      content: commentContent,
+      timestamp: Timestamp.now(),
+    };
+
+    // Append the comment to the Firestore document
+    await updateDoc(postRef, {
+      comments: arrayUnion(comment),
+    });
+
+    alert("Dein Kommentar wurde hinzugefügt!");
+    loadPosts();
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    alert("Da hat wohl jemand die Tinte verschüttet... Versuch's nochmal!");
+  }
+}
+function displayComments(comments, commentsContainer) {
+  commentsContainer.innerHTML = ""; // Clear previous comments
+
+  comments.forEach((comment) => {
+    const commentElement = document.createElement("div");
+    commentElement.classList.add("comment");
+
+    let formattedDate = "Unbekanntes Datum";
+    if (comment.timestamp && comment.timestamp.toDate) {
+      formattedDate = comment.timestamp.toDate().toLocaleDateString("de-DE", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    }
+
+    commentElement.innerHTML = `
+      <p><strong>${comment.author || "Anonym"}</strong>:</p>
+      <p>${comment.content}</p>
+      <p class="comment-timestamp">${formattedDate}</p>
+    `;
+
+    commentsContainer.appendChild(commentElement);
+  });
+}
 // Prompt for username and save in localStorage
 function getOrCreateUsername() {
   let username = localStorage.getItem("username");
@@ -216,12 +268,10 @@ function displayPost(post) {
       month: "long",
       day: "numeric",
     });
-    const formattedTime = post.timestamp.toDate().toLocaleTimeString("de-DE", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    formattedDate += `<br>${formattedTime}`; // Add time below the date
   }
+
+  const postId = post.id; // Assuming `id` is passed with post data
+  const comments = post.comments || [];
 
   postElement.innerHTML = `
     <div class="postcard-border">
@@ -235,6 +285,11 @@ function displayPost(post) {
           <p>${post.content}</p>
           ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ""}
         </div>
+        <div class="comments-section">
+          <div id="commentsContainer-${postId}" class="comments-container"></div>
+          <textarea id="commentInput-${postId}" placeholder="Schreib' einen Kommentar..."></textarea>
+          <button onclick="addComment('${postId}', document.getElementById('commentInput-${postId}').value)">Kommentieren</button>
+        </div>
         <div class="post-footer">
           <p>Mit Liebe verfasst</p>
         </div>
@@ -244,8 +299,11 @@ function displayPost(post) {
 
   const postsContainer = document.getElementById("postsContainer");
   postsContainer.appendChild(postElement);
-}
 
+  // Display existing comments
+  const commentsContainer = document.getElementById(`commentsContainer-${postId}`);
+  displayComments(comments, commentsContainer);
+}
 // Delete a post
 async function deletePost(postId) {
   try {
