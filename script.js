@@ -130,11 +130,11 @@ function setRandomOverlay() {
 function getOrCreateUsername() {
   let username = localStorage.getItem("username");
   if (!username) {
-    username = prompt("Bitte stelle dich vor!");
+    username = prompt("Oh weh! Wir haben uns einander doch noch gar nicht vorgestellt... Von der sicheren Anonymität der Namenlosen können die Namhaften nur träumen!");
     if (username) {
       localStorage.setItem("username", username);
     } else {
-      alert("Bitte gib einen Namen an!");
+      alert("Nenn' ich dich, so kenn' ich dich!");
       return null;
     }
   }
@@ -149,7 +149,7 @@ async function createPost() {
   const username = getOrCreateUsername();
 
   if (!username || !postContent) {
-    alert("Bitte gib einen Namen und Inhalt an.");
+    alert("Leere Postkarten sind wie Plätzchen ohne Streusel...");
     return;
   }
 
@@ -171,13 +171,13 @@ async function createPost() {
 
     await addDoc(collection(db, "posts"), newPost);
 
-    alert("Beitrag erfolgreich erstellt!");
+    alert("Hier geht die Post ab!");
     document.getElementById("postContent").value = "";
     imageUpload.value = "";
     loadPosts();
   } catch (error) {
     console.error("Error creating post:", error);
-    alert("Fehler beim Erstellen des Beitrags.");
+    alert("zzzzzZZZZZZzzz... Hier döst der Postbote. Komm in ein ein Paar Minuten nochmals vorbei.");
   }
 }
 
@@ -199,7 +199,7 @@ async function loadPosts() {
     setRandomOverlay(); // Add random overlays to posts
   } catch (error) {
     console.error("Error loading posts:", error);
-    alert("Fehler beim Laden der Beiträge.");
+    alert("Na sowas... Da muss jemand wohl seinen Briefkasten leeren.");
   }
 }
 
@@ -236,7 +236,7 @@ function displayPost(post) {
           ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Postcard Image">` : ""}
         </div>
         <div class="post-footer">
-          <p>Mit Liebe geschrieben</p>
+          <p>Mit Liebe verfasst</p>
         </div>
       </div>
     </div>
@@ -250,11 +250,11 @@ function displayPost(post) {
 async function deletePost(postId) {
   try {
     await deleteDoc(doc(db, "posts", postId));
-    alert("Beitrag gelöscht!");
+    alert("Die schöne Nachricht behalt ich im Herz, gewiss sei dir kein Trennungsschmerz!");
     loadPosts();
   } catch (error) {
     console.error("Error deleting post:", error);
-    alert("Fehler beim Löschen des Beitrags.");
+    alert("Hoppla! Dann sind wir wohl noch nicht abschiedsreif... Noch eine Weile bleib ich bei dir!");
   }
 }
 
