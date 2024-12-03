@@ -174,6 +174,13 @@ img {
     right: 10px;
   }
 
+  .postcard .stamp-overlay {
+    width: 80px; /* Slightly smaller stamp size for mobile */
+    height: 80px;
+    top: 40px;
+    right: 35px;
+  }
+  
   .postcard .author {
     font-size: 1em;
   }
