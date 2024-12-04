@@ -178,7 +178,28 @@ const stampUrls = [
   "https://i.postimg.cc/cJ6fcRcy/image-2024-12-03-T232151-649.png",
   "https://i.postimg.cc/NFxytFxk/image-2024-12-03-T232251-102.png",
   "https://i.postimg.cc/htNtHVBq/image-2024-12-03-T232322-055.png",
-  "https://i.postimg.cc/k5FPfSMs/image-2024-12-03-T232505-485.png"
+  "https://i.postimg.cc/k5FPfSMs/image-2024-12-03-T232505-485.png",
+  "https://i.postimg.cc/Y0GtBv5D/image-2024-12-03-T232546-117.png",
+  "https://i.postimg.cc/BQSdFLYr/image-2024-12-03-T232738-830.png",
+  "https://i.postimg.cc/gcD7GczN/image-2024-12-03-T232817-746.png",
+  "https://i.postimg.cc/k4htytNT/image-2024-12-03-T232846-489.png",
+  "https://i.postimg.cc/PfP3Zg1M/image-2024-12-03-T233033-405.png",
+  "https://i.postimg.cc/3w0N2JJT/image-2024-12-03-T233129-517.png",
+  "https://i.postimg.cc/QNYLZgJf/image-2024-12-03-T233248-517.png",
+  "https://i.postimg.cc/V6HKpgPM/image-2024-12-03-T233412-092.png",
+  "https://i.postimg.cc/ZKmwgC1w/image-2024-12-03-T233607-253.png",
+  "https://i.postimg.cc/mr9MBS9C/image-2024-12-03-T233725-221.png",
+  "https://i.postimg.cc/m2FFQwdq/image-2024-12-03-T233805-230.png",
+  "https://i.postimg.cc/PqH3GNpX/image-2024-12-03-T233826-841.png",
+  "https://i.postimg.cc/TwMWNWp0/image-2024-12-03-T233935-929.png",
+  "https://i.postimg.cc/RFD2z4xg/image-2024-12-03-T234049-455.png",
+  "https://i.postimg.cc/25qKFgZv/image-2024-12-03-T234153-081.png",
+  "https://i.postimg.cc/15tcqw6V/image-2024-12-03-T234519-047.png",
+  "https://i.postimg.cc/JzQkYhbC/image-2024-12-03-T234604-567.png",
+  "https://i.postimg.cc/5yM9MBV7/image-2024-12-03-T234725-248.png",
+  "https://i.postimg.cc/tJH6mnmy/image-2024-12-03-T234750-759.png",
+  "https://i.postimg.cc/NGpGnrn4/image-2024-12-03-T234859-810.png",
+  "https://i.postimg.cc/j51gWc5c/image-2024-12-03-T235011-284.png"
 ];
 // Array of additional image URLs for overlay stamps
 const overlayImages = [
