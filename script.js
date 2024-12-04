@@ -151,7 +151,7 @@ const stampUrls = [
   "https://i.postimg.cc/vHwbfHZz/image-2024-12-03-T213351-399.png",
   "https://i.postimg.cc/YCSVmJYR/image-2024-12-03-T213500-936.png",
   "https://i.postimg.cc/HsYvffZm/image-2024-12-03-T213758-628.png",
-  "https://i.postimg.cc/6qjVs1q6/image-2024-12-03-T214206-040.png".
+  "https://i.postimg.cc/6qjVs1q6/image-2024-12-03-T214206-040.png",
   "https://i.postimg.cc/8k0rSvwC/image-2024-12-03-T214303-296.png",
   "https://i.postimg.cc/KYGYLcQV/image-2024-12-03-T214523-812.png",
   "https://i.postimg.cc/vZQ17vZ3/image-2024-12-03-T214540-564.png",
